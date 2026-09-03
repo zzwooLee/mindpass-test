@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전문상담사 AI 모의면접 - 사례개념화·상담윤리 집중</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  :root{
+    /* [DESIGN-REFRESH] style.css(공통 디자인 시스템)를 이제 이 페이지도 불러오므로,
+       기존에 이 파일 전체(연습/코스/코칭/기록/안내 탭 3천여 줄)에서 쓰던 --navy/--accent 등의
+       이름은 그대로 두고 값만 공통 토큰을 가리키도록 별칭 처리합니다. 이렇게 하면 아래 수백 개
+       규칙을 일일이 고치지 않아도 새 디자인 색상/폰트가 페이지 전체에 자동 반영됩니다. */
+    --navy: var(--navy-dark); --navy-light: var(--primary-hover);
+    --accent: var(--primary); --accent2: var(--secondary);
+    --bg: var(--bg-color); --card: var(--surface); --text: var(--text-main);
+    --muted: var(--text-sub); --border: var(--border-color);
+    /* --warn / --danger: 이름이 style.css의 전역 토큰과 동일해서 여기서는 재선언하지
+       않습니다 — 재선언하면 자기 참조(순환)가 되어 값이 깨집니다. 전역 값을 그대로 씁니다. */
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);}
+
+  /* 상단 상태 바 / 배지 / 로그아웃 등 공통 UI는 이제 style.css(공통 디자인 시스템)를 그대로 씁니다. */
+  /* [ADMIN-TAB-STYLE-MATCH] 탭 메뉴는 index.html의 로그인 탭과 동일한 .auth-tabs/.auth-tab을
+     재사용합니다(둘 다 style.css를 불러오지만, 이 컴포넌트 자체는 각 페이지에 지역 정의되어
+     있어 여기서도 동일하게 추가합니다). */
+  .auth-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--border-soft);max-width:920px;margin:20px auto 0;padding:0 16px;}
+  .auth-tab{padding:12px 16px;border:none;background:none;font-size:var(--fs-body);font-weight:500;cursor:pointer;color:var(--text-faint);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s, border-color .15s;}
+  .auth-tab:hover{color:var(--primary);}
+  .auth-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700;}
+  /* [FEATURE-FLAG-OFF-BADGE] 관리자에게는 꺼진 탭도 계속 보이므로(이용은 가능),
+     수련생 화면에서는 꺼져 있다는 걸 흐린 글자색 + 빨간 배지로 표시합니다. */
+  nav button .nav-tab-off-badge{display:none;margin-left:6px;font-size:0.72em;font-weight:700;color:#e53e3e;background:#fff5f5;border:1px solid #feb2b2;border-radius:6px;padding:1px 6px;vertical-align:middle;}
+  nav button.nav-tab-off{color:#a0aec0;}
+  nav button.nav-tab-off .nav-tab-off-badge{display:inline-block;}
+  main{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
+  /* [STATUSBAR-WIDTH-MATCH] 이 페이지는 style.css의 .container(1040px)를 쓰지 않고
+     header/nav/main을 각자 max-width:920px로 중앙 정렬합니다. .user-status-bar는
+     style.css의 공용 규칙(다른 페이지에서는 .container 안에 있어 폭이 맞음)이라 여기서는
+     그 폭 지정이 없어 화면 전체로 벌어져 보였습니다 — 여기서만 같은 920px로 맞춥니다.
+     (style.css의 .user-status-bar 자체는 admin/premium/index에서 쓰는 그대로 두고,
+     이 페이지 지역 스타일로만 덮어씁니다.) */
+  .user-status-bar{max-width:920px;margin:32px auto 28px;padding:12px 16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .pill{display:inline-block;padding:4px 10px;border-radius:20px;background:#eaf1fb;color:var(--accent);font-size:var(--fs-caption);font-weight:bold;}
+  .pill.ethics{background:#fdecea;color:var(--danger);}
+  /* [HISTORY-SOURCE-SPLIT] "연습 기록" 구분 필터 버튼 */
+  .history-filter-btn{display:inline-block;padding:6px 14px;border-radius:20px;background:#eef2f7;color:#4a5568;font-size:var(--fs-label);font-weight:700;border:1px solid transparent;cursor:pointer;}
+  .history-filter-btn.active{background:var(--accent);color:#fff;}
+  label.chk{display:flex;align-items:center;gap:6px;font-size:var(--fs-label);padding:6px 10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:#fafbfc;}
+  label.chk input{accent-color:var(--accent);}
+  select,input[type=number],input[type=text],input[type=email],input[type=password]{padding:9px;border-radius:6px;border:1px solid var(--border);font-size:var(--fs-label);width:100%;}
+  button.primary{background:var(--accent);color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:var(--fs-body);cursor:pointer;font-weight:bold;}
+  button.primary:hover{background:var(--navy-light);}
+  button.primary:disabled{opacity:0.6;cursor:default;}
+  button.secondary{background:#fff;color:var(--accent);border:1px solid var(--accent);padding:10px 18px;border-radius:8px;cursor:pointer;font-size:var(--fs-label);}
+  button.ghost{background:none;border:none;color:var(--accent);cursor:pointer;text-decoration:underline;font-size:var(--fs-label);padding:0;}
+  h2{font-size:var(--fs-emphasis);margin:0 0 12px;}
+  h3{font-size:var(--fs-body);margin:0 0 8px;}
+  .muted{color:var(--muted);font-size:var(--fs-label);}
+  .qtext{font-size:1.15rem;font-weight:600;line-height:1.7;margin:20px 0;color:var(--navy);white-space:pre-line;}
+  .timerbox{display:flex;align-items:center;justify-content:space-between;background:var(--primary-light);border:1px solid rgba(37,99,235,0.2);border-radius:var(--radius-md);padding:14px 20px;margin-bottom:14px;}
+  .timer{font-size:1.75rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--primary-dark);}
+  .timer.warn{color:var(--warn);}
+  .timer.danger{color:var(--danger);}
+  textarea{width:100%;min-height:90px;padding:12px;border-radius:8px;border:1px solid var(--border);font-size:var(--fs-label);font-family:inherit;resize:vertical;}
+  .field-block{margin-bottom:18px;}
+  .field-block label{display:block;font-weight:700;font-size:var(--fs-body);margin-bottom:6px;color:var(--navy);}
+  .mode-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .mode-toggle button{background:#fff;border:1px solid var(--border-strong);color:var(--muted);padding:8px 16px;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;}
+  .mode-toggle button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .barwrap{height:6px;background:var(--border);border-radius:var(--radius-full);overflow:hidden;margin-bottom:18px;}
+  .bar{height:100%;background:var(--accent);width:0%;transition:width .2s linear;}
+  .qbank-item{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+  .qbank-item .cat{font-size:var(--fs-caption);color:var(--accent);font-weight:bold;margin-bottom:6px;}
+  .qbank-item .q{font-weight:bold;margin-bottom:8px;white-space:pre-line;}
+  .tips{background:#f7faf8;border-left:3px solid var(--accent2);padding:8px 12px;font-size:var(--fs-label);color:#3a5a4a;border-radius:0 6px 6px 0;}
+  .tips ul{margin:4px 0 0;padding-left:18px;}
+  .checklist label{display:block;font-size:var(--fs-label);padding:6px 0;border-bottom:1px dashed var(--border);}
+  .histitem{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+  .histitem .meta{font-size:var(--fs-caption);color:var(--muted);margin-bottom:6px;}
+  .score-badge{display:inline-block;padding:2px 10px;border-radius:12px;background:#eaf1fb;color:var(--accent);font-weight:bold;font-size:var(--fs-label);}
+  .empty{text-align:center;color:var(--muted);padding:40px 0;}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .searchbox{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);margin-bottom:14px;font-size:var(--fs-label);}
+  footer{text-align:center;color:var(--muted);font-size:var(--fs-caption);padding:20px;}
+  .progress-dots{display:flex;gap:6px;margin:10px 0;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--border);}
+  .dot.done{background:var(--accent2);}
+  .dot.current{background:var(--accent);}
+  .framebox{background:#fff8e6;border:1px solid #f0dca0;border-radius:8px;padding:12px 16px;font-size:var(--fs-label);margin-bottom:16px;}
+  .framebox ol{margin:6px 0 0;padding-left:18px;}
+  .reviewfield{margin-bottom:10px;}
+  .reviewfield .flabel{font-size:var(--fs-caption);font-weight:bold;color:var(--accent);margin-bottom:2px;}
+  .reviewfield .fval{font-size:var(--fs-label);white-space:pre-wrap;}
+
+
+  /* ── 이용 승인 신청 모달 (premium.html과 동일한 톤) ── */
+  .upgrade-icon{font-size:var(--fs-page-title);margin-bottom:10px;}
+  .upgrade-title{font-size:var(--fs-title);font-weight:800;color:#1a202c;margin-bottom:6px;}
+  .upgrade-sub{font-size:var(--fs-body);color:#718096;margin-bottom:20px;}
+  .upgrade-benefits{background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 18px;margin-bottom:18px;text-align:left;}
+  .upgrade-benefits li{list-style:none;font-size:var(--fs-body);color:#2d3748;padding:4px 0;display:flex;align-items:center;gap:8px;}
+  .upgrade-payment-info{background:#fff8e1;border:1px solid #f6c90e;border-radius:10px;padding:14px 18px;margin-top:16px;margin-bottom:18px;text-align:left;}
+  .payment-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;font-size:var(--fs-body);gap:12px;}
+  .payment-label{color:#92700a;font-weight:600;white-space:nowrap;}
+  .payment-value{color:#1a202c;text-align:right;line-height:1.6;}
+  .btn-email-apply{width:100%;padding:14px;border-radius:10px;font-size:var(--fs-body);font-weight:700;cursor:pointer;border:none;background:var(--accent);color:#fff;transition:all .2s;margin-bottom:10px;}
+  .btn-email-apply:hover{background:var(--navy-light);transform:translateY(-1px);}
+  .upgrade-notice{font-size:var(--fs-caption);color:#a0aec0;margin-top:14px;line-height:1.6;}
+  .btn-close-text{margin-top:14px;background:none;border:none;color:#a0aec0;cursor:pointer;font-size:var(--fs-label);}
+  .btn-close-text:hover{color:#718096;}
+
+  /* [TIER-BENEFITS] renderTierBenefitsHTML()이 만드는 무료/프리미엄 안내 박스 —
+     style.css의 정의와 동일합니다. 이 페이지는 style.css를 불러오지 않아 여기서
+     별도 정의합니다(그동안 이 규칙이 없어 상위 .modal-content의 text-align:center를
+     그대로 물려받아 불렛 문구가 가운데 정렬로 보였습니다). */
+  .tier-benefit-block { border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; text-align: left; }
+  .tier-benefit-block:last-child { margin-bottom: 0; }
+  .tier-benefit-block ul { list-style: none; margin-top: 6px; padding-left: 0; }
+  .tier-benefit-block li { font-size: var(--fs-body); padding: 3px 0; line-height: 1.5; }
+  .tier-benefit-label { font-weight: 700; font-size: var(--fs-label); }
+  .tier-benefit-label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .tier-benefit-year { font-size: var(--fs-caption); font-weight: 600; text-align: right; }
+  .tier-benefit-free { background: #f7f7f8; border: 1px solid #e2e8f0; }
+  .tier-benefit-free .tier-benefit-label { color: #718096; }
+  .tier-benefit-free .tier-benefit-year { color: #a0aec0; }
+  .tier-benefit-free li { color: #718096; }
+  .tier-benefit-free li::before { content: "− "; }
+  .tier-benefit-premium { background: #f0fff4; border: 1px solid #9ae6b4; }
+  .tier-benefit-premium .tier-benefit-label { color: #276749; }
+  .tier-benefit-premium .tier-benefit-year { color: #2f855a; }
+  .tier-benefit-premium li { color: #22543d; }
+  .tier-benefit-premium li::before { content: "✓ "; font-weight: 700; }
+
+  details.acc{border:1px solid var(--border);border-radius:var(--radius-md);margin-top:12px;overflow:hidden;background:#fff;}
+  details.acc summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:700;color:var(--navy);background:var(--surface-alt);display:flex;align-items:center;justify-content:space-between;}
+  details.acc summary::-webkit-details-marker{display:none;}
+  details.acc summary::after{content:'\25BE';color:var(--muted);transition:transform .2s;margin-left:10px;}
+  details.acc[open] summary{border-bottom:1px solid var(--border);}
+  details.acc[open] summary::after{transform:rotate(180deg);}
+  details.acc .acc-body{padding:18px;}
+</style>
+</head>
+<body>
+
+<!-- ===================== APP ROOT ===================== -->
+<div id="appRoot" style="display:none;">
+
+<div class="user-status-bar">
+  <div class="user-info">
+    <span class="user-name" id="userGreeting"></span>
+    <span class="badge" id="interviewStatusBadge"></span>
+  </div>
+  <div class="status-actions">
+    <!-- [MULTI-CERT-2] premium.html의 "⭐ 프리미엄 신청" 버튼과 동일한 위치/톤 —
+         미승인(FREE) 상태일 때만 노출되며, 기존 showUpgradeModal()을 그대로 재사용합니다. -->
+    <button id="btnInterviewUpgrade" class="btn-upgrade" style="display:none;" onclick="showUpgradeModal()">⭐ 이용 승인 신청</button>
+    <a class="btn-nav-link" href="premium.html"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/></svg> 자격증 퀴즈 뱅크</a>
+    <a class="btn-nav-link" href="index.html"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6 10v9h5v-5h2v5h5v-9"/></svg> 홈으로</a>
+    <a class="btn-nav-link" href="admin.html" id="btn-admin-menu" style="display:none;"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg> 관리자</a>
+    <button class="btn-logout" id="logoutBtn">로그아웃</button>
+  </div>
+</div>
+
+<header style="text-align:center; max-width:920px; margin:28px auto 20px; padding:0 16px;">
+  <h1 style="font-size:var(--fs-page-title); font-weight:800; color:var(--navy-dark);">전문상담사 AI 모의면접</h1>
+  <p style="color:var(--text-sub); margin-top:6px;">한국상담학회 전문상담사(1급·2급) 면접 대비 · <b>사례개념화</b>·<b>상담윤리</b>·<b>수퍼비전</b>(1급)까지, AI 피드백으로 실전처럼 준비하는 연습 도구</p>
+</header>
+
+<!-- [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 안내 배너 — 개설된 회차가 있을 때만 표시됩니다. -->
+<div id="coachingPromoBanner" style="max-width:920px; margin:0 auto 20px; padding:0 16px;"></div>
+
+<nav id="nav" class="auth-tabs">
+  <button data-tab="practice" id="navPracticeBtn" class="auth-tab active"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 3h6"/><circle cx="9" cy="14" r="1.5"/><circle cx="15" cy="14" r="1.5"/><path d="M9 18h6"/></svg> AI 자율연습</span><span class="nav-tab-off-badge">꺼짐</span></button>
+  <button data-tab="schedule" id="navScheduleBtn" class="auth-tab"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5"/></svg> AI 면접 코스</span><span class="nav-tab-off-badge">꺼짐</span></button>
+  <button data-tab="coaching" id="navCoachingBtn" class="auth-tab"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l6-3v10l-6-3z"/></svg> 코칭 면접 코스</span><span class="nav-tab-off-badge">꺼짐</span></button>
+  <button data-tab="history" id="navHistoryBtn" class="auth-tab"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8 11h8M8 15h8M8 19h5"/></svg> 연습 기록</span><span class="nav-tab-off-badge">꺼짐</span></button>
+  <button data-tab="guide" id="navGuideBtn" class="auth-tab"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 5c2-1 5-1 8 0v14c-3-1-6-1-8 0zM20 5c-2-1-5-1-8 0v14c3-1 6-1 8 0z"/></svg> 면접 안내</span><span class="nav-tab-off-badge">꺼짐</span></button>
+</nav>
+
+<main>
+
+  <!-- PRACTICE TAB -->
+  <section id="tab-practice">
+    <div class="card" id="setupCard">
+      <h2>AI 자율연습 사용 안내</h2>
+      <!-- [FREE-TRIAL-DEFAULT-CASE] 승인 전(Free) 수련생 전용 안내 — 관리자가 지정한
+           기본 사례(사례개념화·상담윤리 각 1개)로 체험판이 진행됨을 알립니다. -->
+      <div class="tips" id="practiceFreeTrialNotice" style="display:none; margin-bottom:14px;">
+        <ul>
+          <li>무료 체험: 기본 사례(사례개념화 1사례 · 상담윤리 1사례)에 대해 총 5회의 AI 피드백을 무료로 체험해 보실 수 있습니다.</li>
+          <li>수강 혜택: <b>코칭면접코스</b> 등록 시, 다양한 심화 사례의 <b>AI 자율연습</b>을 무료로 이용하실 수 있습니다.</li>
+        </ul>
+        <div style="margin-top:10px;">
+          <button class="primary" onclick="document.getElementById('navCoachingBtn').click();" style="white-space:nowrap;">🎥 코칭면접코스 안내</button>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:14px; align-items:flex-end; gap:24px; flex-wrap:wrap;">
+        <div>
+          <div id="gradeDisplay" style="font-weight:700;">연습 진행 기준</div>
+        </div>
+        <!-- [ADMIN-PRACTICE-PREVIEW] 관리자 전용 — 이 카드 전체가 실제 수련생 연습
+             화면과 동일합니다(선택한 적이 없으면 기본 2급). 급수를 선택해 다른
+             수련생 화면도 확인해 보세요. 아래 "모의면접 미리보기" 버튼과 기능이
+             겹치지 않도록 급수 전환은 이 자리에서, 실제 진행 화면 확인은 그
+             버튼으로 구분합니다. -->
+        <div id="practicePreviewPickerCard" style="display:none;">
+          <div class="muted" style="margin-bottom:4px;">👀 미리볼 급수</div>
+          <div class="mode-toggle" style="margin:0;">
+            <button type="button" id="practicePreviewBtn2" onclick="startPracticePreview('2')">2급 화면</button>
+            <button type="button" id="practicePreviewBtn1" onclick="startPracticePreview('1')">1급 화면</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- [PRACTICE-TIME-ADMIN-ONLY] 준비/답변 시간은 더 이상 수련생이 직접 조정할 수 없고,
+           관리자 대시보드(⏱️ 연습 시간 설정)에서 설정한 값을 분 단위로 그대로 보여주기만
+           합니다. 표시값은 loadFeatureFlags() → renderPracticeTimeDisplay()가 채웁니다. -->
+      <div id="timeSettingsWrap" style="margin-top:16px;">
+        <div style="overflow-x:auto; background:#fff; border-radius:8px;">
+          <table class="user-table" style="border-collapse:collapse; border:1px solid #cbd5e0; font-size:var(--fs-label); font-weight:normal;">
+            <thead>
+              <tr>
+                <th style="text-align:left; padding:6px 14px; border:1px solid #cbd5e0;">영역 (관리자 설정)</th>
+                <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">준비시간(분)</th>
+                <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">답변시간(분)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="timeSettings-case">
+                <td style="text-align:left; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">사례개념화</td>
+                <td id="prepMin-case" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+                <td id="ansMin-case" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+              </tr>
+              <tr id="timeSettings-ethics">
+                <td style="text-align:left; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">상담윤리</td>
+                <td id="prepMin-ethics" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+                <td id="ansMin-ethics" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+              </tr>
+              <!-- [SUPERVISION-PHASE2] 수퍼비전은 1급 소속(또는 1급으로 미리보기 중인 관리자)에게만
+                   보이며, 별도 카드/버튼 없이 사례개념화·상담윤리와 한 세트로 이어서 진행됩니다. -->
+              <tr id="timeSettings-supervision" style="display:none;">
+                <td style="text-align:left; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">수퍼비전</td>
+                <td id="prepMin-supervision" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+                <td id="ansMin-supervision" style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="muted" id="supervisionInlineNote" style="display:none; margin:10px 0 0; font-size:var(--fs-label);">1급 평가영역인 수퍼비전 이론/실제 문제 1개가 사례개념화·상담윤리에 이어 세 번째 단계로 함께 출제됩니다. 정해진 프레임 없이 자유롭게 서술한 뒤 모범답안과 비교해볼 수 있습니다.</p>
+
+      <div style="margin-top:18px;">
+        <button class="primary" id="startBtn" disabled>불러오는 중...</button>
+        <span class="muted" id="startBtnHint" style="margin-left:10px;">사례/상황이 무작위로 출제되며, 영역별로 답변을 구조화해서 작성합니다.</span>
+      </div>
+      <div id="practiceFreeTrialUsageInfo" style="display:none; margin-top:10px; padding:10px 14px; background:#eaf1fb; border:1px solid var(--accent); border-radius:8px; font-size:var(--fs-label); color:var(--text);"></div>
+      <div id="practiceDailyNotice" class="muted" style="display:none; color:#c53030; margin-top:10px; font-weight:600;"></div>
+    </div>
+
+    <div class="card" id="sessionCard" style="display:none;">
+      <div class="flex-between">
+        <span class="pill" id="catBadge"></span>
+        <span class="muted" id="qIndexLabel"></span>
+      </div>
+      <div class="progress-dots" id="progressDots"></div>
+
+      <div id="prepPhase">
+        <div class="timerbox">
+          <span>사례/상황 파악 중 (준비시간)</span>
+          <span class="timer" id="prepTimer">--</span>
+        </div>
+        <div class="barwrap"><div class="bar" id="prepBar"></div></div>
+        <div class="qtext" id="prepQuestion"></div>
+        <button class="secondary" id="skipPrepBtn">준비 건너뛰고 바로 답변하기</button>
+      </div>
+
+      <div id="answerPhase" style="display:none;">
+        <div class="timerbox">
+          <span>답변 작성 중</span>
+          <span class="timer" id="ansTimer">--</span>
+        </div>
+        <div class="barwrap"><div class="bar" id="ansBar"></div></div>
+        <div class="qtext" id="ansQuestion"></div>
+        <div id="theorySelectWrap" style="display:none; margin-bottom:14px; padding:14px 16px; border:2px solid var(--accent); border-radius:10px; background:#eaf1fb;">
+          <label style="display:block; font-weight:800; font-size:var(--fs-emphasis); margin-bottom:6px; color:var(--accent);">📌 상담이론 선택 (필수 확인)</label>
+          <select id="theorySelect" style="width:100%; padding:10px; border:1px solid var(--accent); border-radius:8px; font-size:var(--fs-body); font-weight:700;"></select>
+          <div class="muted" style="margin-top:6px;">선택한 이론을 기준으로 관리자가 나중에 AI 피드백을 생성해줄 수 있습니다. 답변 종료 시 다시 한번 확인합니다.</div>
+        </div>
+        <div class="framebox" id="ansFrameHint"></div>
+        <div class="mode-toggle" id="caseModeToggle" style="display:none;">
+          <button type="button" id="caseModeStructuredBtn" onclick="onCaseModeToggleClick('structured')">🧩 구조형</button>
+          <button type="button" id="caseModeFreeformBtn" onclick="onCaseModeToggleClick('freeform')">✍️ 통합형 (한 편의 글로 서술)</button>
+        </div>
+        <div id="ansFieldsContainer"></div>
+        <div style="margin-top:10px;">
+          <button class="primary" id="submitAnsBtn">답변 종료</button>
+        </div>
+      </div>
+
+      <div id="reviewPhase" style="display:none;">
+        <div class="qtext" id="reviewQuestion"></div>
+        <div class="tips" id="reviewTips"></div>
+        <h3 style="margin-top:16px;">내 답변</h3>
+        <div class="card" style="background:#fafbfc;" id="reviewAnswerBox"></div>
+        <h3 style="margin-top:16px;">자기 평가 체크리스트</h3>
+        <div class="checklist" id="checklistBox"></div>
+        <div class="row" style="margin-top:14px;align-items:center;">
+          <div class="muted">전반적 자신감 (1~5)</div>
+          <select id="confidenceSel">
+            <option value="1">1 - 많이 부족</option>
+            <option value="2">2</option>
+            <option value="3" selected>3 - 보통</option>
+            <option value="4">4</option>
+            <option value="5">5 - 자신 있음</option>
+          </select>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="primary" id="nextQBtn">다음 문항</button>
+          <button class="secondary" id="exitQBtn" style="margin-left:8px;">나가기 (여기까지 저장하고 종료)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="summaryCard" style="display:none;">
+      <h2>모의면접 완료</h2>
+      <p class="muted" id="summaryMeta"></p>
+      <div id="saveErrorNotice" style="display:none; color:#c53030; font-weight:600; margin:8px 0 14px; padding:10px 14px; background:#fff5f5; border:1px solid #feb2b2; border-radius:8px;"></div>
+      <div id="summaryList"></div>
+      <div class="row" style="margin-top:16px;">
+        <button class="primary" id="restartBtn">새 모의면접 시작</button>
+        <button class="secondary" id="downloadBtn">결과 텍스트로 저장</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- [TEAM-SCHEDULE] SCHEDULE TAB -->
+  <section id="tab-schedule" style="display:none;">
+
+    <!-- [ADMIN-TRAINING-DASHBOARD] 관리자 전용 현황 대시보드는 관리자 대시보드
+         (admin.html → "📊 면접 코스 현황" 탭)로 이동했습니다. 수련생용 면접 연습 화면과
+         관리자 모니터링 화면을 분리해 이 페이지를 더 가볍게 유지하기 위함입니다. -->
+    <div id="adminTrainingDashboardWrap" style="display:none;">
+      <div class="card">
+        <h2 style="display:flex;align-items:center;gap:8px;"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg> 수련생 화면 미리보기</h2>
+        <p class="muted">관리자 계정은 실제로 수련 과정을 진행하는 대신, 팀을 선택해 그 팀 수련생에게 보이는 AI 면접 코스 화면을 미리 확인합니다. 진행 내용은 저장되지 않습니다.</p>
+        <div class="row" style="margin-top:10px; align-items:center; gap:10px;">
+          <select id="schedulePreviewTeamSelect" style="max-width:260px; flex:1;">
+            <option value="">팀을 선택하세요</option>
+          </select>
+          <button class="secondary" onclick="startSchedulePreviewFromPicker()">👀 미리보기 시작</button>
+        </div>
+        <p class="muted" style="margin-top:18px; padding-top:14px; border-top:1px dashed var(--border);">전체 팀 현황 요약 · AI 피드백 미작성 큐 · 신고된 피드백 · 코칭 세션 피드백 대기는 <a href="admin.html" style="color:var(--accent);">관리자 대시보드 → 📊 면접 코스 현황</a>에서 확인하세요.</p>
+      </div>
+    </div>
+
+    <!-- [TEAM-SCHEDULE] 수련생 화면 (일반 회원 기본 / 관리자는 미리보기 중에만 노출) -->
+    <div id="scheduleStudentWrap">
+      <!-- 미승인 사용자에게 아래 수련 과정 대신 표시 (practice 탭의 approvalRequiredCard와 동일한 톤) -->
+      <div class="card" id="scheduleApprovalRequiredCard" style="display:none; text-align:center; padding:44px 24px;">
+        <div style="font-size:var(--fs-page-title); margin-bottom:10px;">🔒</div>
+        <h2 style="margin-bottom:8px;">모의면접 이용 승인이 필요합니다</h2>
+        <p class="muted" style="max-width:420px; margin:0 auto 22px;">AI 면접 코스 확인은 승인 후 이용 가능합니다.</p>
+        <button class="primary" onclick="showUpgradeModal()">⭐ 이용 승인 신청</button>
+      </div>
+
+      <div id="scheduleContentWrap">
+        <div class="tips" id="previewBanner" style="display:none; margin-bottom:16px; justify-content:space-between; align-items:center; gap:10px;">
+          <span>👀 <b id="previewTeamNameLabel"></b> 팀의 수련생 화면을 미리보고 있습니다. 실제로 제출되지 않습니다.</span>
+          <button class="btn-admin-outline" style="white-space:nowrap;" onclick="exitTeamPreview()">미리보기 종료</button>
+        </div>
+        <div class="card">
+          <h2>AI 면접 코스</h2>
+          <p class="muted" id="scheduleNoTeamMsg" style="display:none;">소속된 팀이 없어 AI 면접 코스가 없습니다. 담당자에게 문의해 주세요.</p>
+          <div id="scheduleListWrap"></div>
+        </div>
+
+        <div id="scheduleAnswerCardsWrap"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COACHING TAB -->
+  <!-- [COACHING-TAB] 실제 답변 작성/제출/타이머 UI(buildScheduleAnswerCard)는 기존
+       "AI 면접 코스" 탭(tab-schedule)의 것을 그대로 재사용하지만, [COACHING-ROW-CLICK]
+       렌더링은 이 탭 안에서 직접 합니다 — "AI 면접 코스" 탭은 관리자가 켜고 끌 수
+       있는 별도 탭이라 꺼져 있을 수 있으므로, 그쪽으로 이동시키지 않고 이 탭의
+       #coachingScheduleListWrap에서 "공개중" 항목을 클릭하면 바로 아래
+       #coachingAnswerCardsWrap에 답안 작성 화면이 나타납니다. 이 탭은 코칭(실시간,
+       delivery_mode='live') 팀 소속 여부에 따라 이 화면 또는 프로그램 안내 카드를
+       보여줍니다. -->
+  <section id="tab-coaching" style="display:none;">
+    <div class="card" id="coachingMemberCard" style="display:none;">
+      <h2 style="display:flex;align-items:center;gap:8px;"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l6-3v10l-6-3z"/></svg> 코칭 면접 코스</h2>
+      <p class="muted">소그룹(9명 기준) 실시간 화상 코칭 · AI 자율연습 포함. 제출한 답변에 대한 피드백은 수퍼바이저가 실시간 세션에서 제공합니다.</p>
+      <div id="coachingScheduleListWrap"></div>
+      <div id="coachingAnswerCardsWrap"></div>
+    </div>
+    <div class="card" id="coachingInfoCard">
+      <h2 style="display:flex;align-items:center;gap:8px;"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l6-3v10l-6-3z"/></svg> 코칭 면접 코스 안내</h2>
+      <!-- [MODAL-CONTENT-REUSE] "코칭 면접 코스 이용 승인" 모달(showUpgradeModal('coaching'))과
+           동일한 설명·혜택·이용 요금 내용을 재구성해서 보여줍니다. 모달 쪽 문구가
+           바뀌면(premium-info.js의 counselor_interview.subtitle/premium/coachingPrice)
+           이 카드도 함께 맞춰주세요. -->
+      <p class="muted">사례개념화·상담윤리·수퍼비전(1급) 실전 코칭면접 프로그램을 지원합니다.</p>
+      <ul style="margin:14px 0; padding-left:20px; color:#4a5568; font-size:var(--fs-body); line-height:1.8;">
+        <li>소그룹(9명 기준) 실시간 화상 코칭 진행</li>
+        <li>AI 자율연습 사례 제공 (영역별 10사례 제공)</li>
+        <li>연습 결과 자동 저장 및 기록 조회</li>
+      </ul>
+      <div style="overflow-x:auto; margin:14px 0; background:#fff; border-radius:8px;">
+        <table class="user-table" style="border-collapse:collapse; border:1px solid #cbd5e0; font-size:var(--fs-label); font-weight:normal; width:100%;">
+          <thead>
+            <tr>
+              <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">급수</th>
+              <th style="text-align:left; padding:6px 14px; border:1px solid #cbd5e0;">코스 내용</th>
+              <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">총 회수</th>
+              <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">주당 회수</th>
+              <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">회당 시간</th>
+              <th style="text-align:center; padding:6px 14px; border:1px solid #cbd5e0;">총 시간</th>
+              <th style="text-align:right; padding:6px 14px; border:1px solid #cbd5e0;">이용 요금</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">2급</td>
+              <td style="text-align:left; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">사례개념화·상담윤리</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">5회</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">주 1회</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">2시간</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">10시간</td>
+              <td style="text-align:right; padding:6px 14px; font-weight:700; border:1px solid #cbd5e0;">270,000원</td>
+            </tr>
+            <tr>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">1급</td>
+              <td style="text-align:left; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">사례개념화·상담윤리·수퍼비전</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">6회</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">주 1회</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">2시간</td>
+              <td style="text-align:center; padding:6px 14px; font-weight:normal; border:1px solid #cbd5e0;">12시간</td>
+              <td style="text-align:right; padding:6px 14px; font-weight:700; border:1px solid #cbd5e0;">320,000원</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="coachingScheduleAnnouncement"></div>
+      <div id="coachingBankInfo"></div>
+      <button class="primary" id="coachingApplyBtn" onclick="showUpgradeModal('coaching')">📩 코칭 면접 코스 신청하기</button>
+      <p class="tips" id="coachingGrantedNotice" style="display:none; margin-top:12px;">✅ 이미 코칭 면접 코스 이용 권한이 있습니다. 담당자가 팀을 배정하면 이 곳에 실시간 세션 일정이 표시됩니다.</p>
+    </div>
+    <!-- [PREVIEW-SPLIT] 관리자 전용 — 위 카드(안내 카드 또는 일정 요약 카드)는 여기서
+         고른 팀에 따라 이 탭 안에서 바로 바뀝니다. 목록은 delivery_mode='live' 팀으로만
+         한정됩니다. -->
+    <div class="card" id="coachingPreviewPickerCard" style="display:none;">
+      <h2 style="display:flex;align-items:center;gap:8px;"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg> 수련생 화면 미리보기</h2>
+      <p class="muted">위 화면은 관리자 계정으로 보는 화면입니다. 코칭(실시간) 팀을 선택하면 그 팀 수련생에게 보이는 일정 요약 화면으로 이 자리에서 바로 전환됩니다. 실제 답변 제출 화면은 여전히 "🎯 AI 면접 코스" 탭에서 열립니다.</p>
+      <div class="row" style="margin-top:10px; align-items:center; gap:10px;">
+        <select id="coachingPreviewTeamSelect" style="max-width:260px; flex:1;">
+          <option value="">팀을 선택하세요 (안내 화면)</option>
+        </select>
+        <button class="secondary" onclick="startCoachingPreviewFromPicker()">👀 화면 전환</button>
+      </div>
+      <p class="muted" id="coachingPreviewStatusLabel" style="margin-top:10px; font-weight:600;"></p>
+    </div>
+  </section>
+
+  <!-- HISTORY TAB -->
+  <section id="tab-history" style="display:none;">
+
+    <!-- [RECORDS-ADMIN] 관리자 전용 — admin.html "면접 연습기록" 탭을 이곳으로 옮겼습니다. -->
+    <div id="adminSessionsWrap" style="display:none;">
+      <div class="card">
+        <div class="flex-between">
+          <h2 style="display:flex;align-items:center;gap:8px;"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM8 11h8M8 15h8M8 19h5"/></svg> 전체 수련생 연습기록</h2>
+          <button class="secondary" onclick="loadInterviewSessions()">🔄 새로고침</button>
+        </div>
+        <p class="muted" style="margin:-6px 0 12px;">회원은 본인의 기록만 볼 수 있습니다. 관리자는 여기서 전체 회원의 연습기록을 열람·삭제할 수 있습니다 (최근 300건).</p>
+        <div style="margin:0 0 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <label for="sessionsStudentFilter" class="muted" style="font-size:var(--fs-label);">수련생 선택</label>
+          <select id="sessionsStudentFilter" style="padding:8px; border:1px solid var(--border); border-radius:8px; font-size:var(--fs-label); min-width:220px;">
+            <option value="all">전체 수련생</option>
+          </select>
+          <label class="muted" style="font-size:var(--fs-label); display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="sessionsReviewOnlyFilter" checked>
+            🔍 검토 필요만 보기 (이상 신호 · 샘플링)
+          </label>
+          <label class="muted" style="font-size:var(--fs-label); display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="sessionsIncludeDeletedFilter">
+            🗑️ 삭제된 기록도 보기 (수련생이 삭제해도 실제로는 보존됨)
+          </label>
+          <span class="muted" id="sessionsFilteredCount" style="font-size:var(--fs-caption);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:var(--fs-label);">
+            <thead>
+              <tr>
+                <th style="text-align:left; padding:10px; border-bottom:1px solid var(--border);">회원</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">구분</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">급수</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">문항 수</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">평균 자신감</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">체크리스트</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">일시</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">검토상태</th>
+                <th style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">관리</th>
+              </tr>
+            </thead>
+            <tbody id="interview-session-list-body">
+              <tr><td colspan="9" class="muted" style="text-align:center; padding:30px;">데이터를 불러오는 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="session-detail-panel" style="display:none; margin-top:20px; border-top:1px solid var(--border); padding-top:18px;">
+          <div class="flex-between" style="margin-bottom:10px;">
+            <h3 id="session-detail-heading" style="margin:0;"></h3>
+            <button class="secondary" onclick="document.getElementById('session-detail-panel').style.display='none';">✕ 닫기</button>
+          </div>
+          <div id="session-detail-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 수련생 화면 (본인 연습 기록) -->
+    <div id="historyStudentWrap">
+      <!-- 미승인 사용자에게 아래 기록 카드 대신 표시 (practice 탭의 approvalRequiredCard와 동일한 톤) -->
+      <div class="card" id="historyApprovalRequiredCard" style="display:none; text-align:center; padding:44px 24px;">
+        <div style="font-size:var(--fs-page-title); margin-bottom:10px;">🔒</div>
+        <h2 style="margin-bottom:8px;">모의면접 이용 승인이 필요합니다</h2>
+        <p class="muted" style="max-width:420px; margin:0 auto 22px;">연습 기록 확인은 승인 후 이용 가능합니다.</p>
+        <button class="primary" onclick="showUpgradeModal()">⭐ 이용 승인 신청</button>
+      </div>
+      <div class="card" id="historyContentCard">
+        <div class="flex-between">
+          <h2>내 연습 기록</h2>
+          <button class="ghost" id="clearHistBtn">전체 기록 삭제</button>
+        </div>
+        <div id="historyFilterWrap" style="display:flex; gap:8px; flex-wrap:wrap; margin:-4px 0 14px;">
+          <button type="button" class="history-filter-btn active" data-filter="all">전체</button>
+          <button type="button" class="history-filter-btn" data-filter="practice">🤖 AI 자율연습</button>
+          <button type="button" class="history-filter-btn" data-filter="coaching">🎥 코칭 면접 코스</button>
+          <button type="button" class="history-filter-btn" id="historyFilterCourseBtn" data-filter="course" style="display:none;">🎯 AI 면접 코스</button>
+        </div>
+        <div id="histList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUIDE TAB -->
+  <section id="tab-guide" style="display:none;">
+    <div class="card">
+      <h2>전문상담사 면접시험 평가 영역 안내 (한국상담학회 기준)</h2>
+      <p class="muted" style="margin:-6px 0 14px;">항목을 눌러 펼쳐보세요.</p>
+
+      <details class="acc" open>
+      <summary>급수별 세부영역 및 합격기준</summary>
+      <div class="acc-body">
+      <div style="overflow-x:auto;">
+        <table class="user-table" style="text-align:center; border-collapse:collapse; border:1px solid #cbd5e0; font-size:var(--fs-label);">
+          <thead>
+            <tr>
+              <th style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;">급수</th>
+              <th style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;">과목명</th>
+              <th style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;">대분류</th>
+              <th style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;">중분류</th>
+              <th style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">세부영역</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="4" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">1급</td>
+              <td rowspan="4" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">상담이론 및<br>수퍼비전</td>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">전문성</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">① 이론적 이해 능력</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 고급상담이론에 대한 심층적 지식 측정</td>
+            </tr>
+            <tr>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">② 수퍼비전 능력</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 수퍼비전 이론 및 실제에 대한 지식 측정</td>
+            </tr>
+            <tr>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">상담윤리</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">① 상담윤리에 대한 지식</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 1급 전문상담사로서의 윤리에 대한 지식 측정</td>
+            </tr>
+            <tr>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">② 추론 능력</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 1급 전문상담사로서의 윤리 이슈에 대한 추론 능력 측정</td>
+            </tr>
+            <tr>
+              <td rowspan="3" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">2급</td>
+              <td rowspan="3" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">사례분석과<br>사례개념화</td>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; padding:8px 12px; border:1px solid #cbd5e0;">전문성</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">① 이론적 이해 능력</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 상담이론에 대한 심층적 지식 측정</td>
+            </tr>
+            <tr>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">② 사례개념화</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 2급 전문상담사로서의 전문성과 창의력</td>
+            </tr>
+            <tr>
+              <td style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;">상담윤리</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">① 상담윤리에 대한 지식</td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">■ 2급 전문상담사로서의 윤리에 대한 지식 측정</td>
+            </tr>
+            <tr>
+              <td colspan="4" style="text-align:center; padding:8px 12px; border:1px solid #cbd5e0;"><b>합격 기준</b></td>
+              <td style="text-align:left; padding:8px 12px; border:1px solid #cbd5e0;">100점 만점 중 평균 70점 이상<br>(면접위원 1인의 총점수가 40점 미만일 경우 불합격)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted" style="margin-top:10px;">※ 위 내용은 한국상담학회 전문상담사 자격검정 시행공고를 근거로 정리했으며, 자세한 내용은 반드시 한국상담학회 공식 홈페이지(counselors.or.kr)의 해당 연도 시행공고를 확인하시기 바랍니다.</p>
+      </div>
+      </details>
+
+      <details class="acc">
+      <summary>사례개념화 답변 프레임 (8단계) · 1급·2급 공통</summary>
+      <div class="acc-body">
+      <p>① 주호소문제 → ② 촉발요인 → ③ 부적응적 패턴 → ④ 유발요인(소인, 이론적 관점) → ⑤ 유지요인(이론적 관점, 부정적·긍정적) → ⑥ 위험 요인 및 안전 확인 → ⑦ 상담목표 → ⑧ 상담전략(개입계획)</p>
+      </div>
+      </details>
+
+      <details class="acc">
+      <summary>상담윤리 답변 프레임 (4단계 윤리적 의사결정) · 1급·2급 공통</summary>
+      <div class="acc-body">
+      <p>① 윤리적 쟁점 파악 → ② 관련 윤리강령·법적 근거 → ③ 이해관계자 및 영향 검토 → ④ 대응 절차 및 결정</p>
+      </div>
+      </details>
+
+      <details class="acc">
+      <summary>수퍼비전 답변 방식 · 1급</summary>
+      <div class="acc-body">
+      <p>정해진 단계(프레임)가 없는 이론/실제 설명형 문제입니다. 질문에 대해 자유롭게 서술하며, 문제별로 등록된 평가 포인트를 기준으로 스스로 점검합니다.</p>
+      </div>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">© 2026 MindPass · 상담·심리 자격시험 통합 플랫폼</footer>
+
+<!-- 이용 승인 신청 모달 -->
+<div id="upgrade-modal" class="modal-overlay" style="display:none;" onclick="closeUpgradeModal(event)">
+  <div class="modal-content" style="width:440px;">
+    <div id="upgrade-modal-body" style="text-align:center; padding:20px; color:#a0aec0;">로딩 중...</div>
+  </div>
+</div>
+
+</div><!-- /appRoot -->
+
+<script src="premium-info.js"></script>
+<script src="common.js"></script>
+<script>
+// ============================================================
+// [통합] 로그인/계정 관리는 common.js(퀴즈 뱅크와 공유)가 담당합니다.
+// 이 페이지는 sessionStorage의 quiz_user/quiz_token이 있는지만 확인합니다.
+// ============================================================
+
+function requireLoginOrRedirect(){
+  if (!currentUser || !currentUser.email) {
+    location.href = 'index.html';
+    return false;
+  }
+  return true;
+}
+
+// [MULTI-CERT-2] 전문상담사 AI 모의면접 승인 상태 — common.js의
+// window.getCurrentExamStatus('counselor_interview')를 그대로 재사용합니다
+// (퀴즈 뱅크의 임상심리사/청소년상담사 판정과 동일한 로직).
+function getInterviewAccessStatus(){
+  if (typeof window.getCurrentExamStatus === 'function') {
+    return window.getCurrentExamStatus('counselor_interview');
+  }
+  return (currentUser && currentUser.isAdmin) ? 'admin'
+    : ((currentUser && currentUser.subscriptions && currentUser.subscriptions.counselor_interview) || 'free');
+}
+
+function applyAccessGate(){
+  renderPracticeTab();
+}
+
+// [ADMIN-PRACTICE-PREVIEW] 관리자는 소속 팀(=급수)이 없으므로, AI 자율연습 탭에서는 실제로
+// 연습을 진행하는 대신 급수를 선택해 수련생 화면을 미리 봅니다. null이면 아직 급수를
+// 선택하지 않은 상태(미리보기 선택 카드 노출), '1'/'2'면 그 급수의 수련생 화면을 봅니다.
+let adminPracticePreviewGrade = null;
+function isAdminPracticePreviewing(){
+  return !!(currentUser && currentUser.isAdmin && adminPracticePreviewGrade);
+}
+// 실제 화면 노출 판단에 쓸 "유효 급수" — 관리자가 미리보기 중이면 선택한 급수를,
+// 그 외에는 소속 팀 기준 실제 급수(teamGrade)를 그대로 씁니다.
+function effectivePracticeGrade(){
+  return isAdminPracticePreviewing() ? adminPracticePreviewGrade : teamGrade;
+}
+
+// [SUPERVISION-GRADE-GATE] 수퍼비전 단계는 이용 승인 + 1급 소속(또는 관리자가 1급으로
+// 미리보기 중) + 활성화된 수퍼비전 문제가 실제로 있을 때만 AI 자율연습에 세 번째 단계로
+// 합류합니다. teamGrade는 loadMySettings()가 비동기로 채우고 QUESTIONS는 loadQuestionBank()가
+// 채우므로, 이 함수는 여러 진입점에서 호출해 상태가 바뀔 때마다 다시 계산합니다.
+// [MERGED-PRACTICE-FLOW] 예전에는 별도 카드였지만, 이제 setupCard 안의 시간 설정 블록 +
+// 안내 문구만 토글하고, 실제 진행 여부는 pickCombinedQuestions()가 같은 조건으로 다시 판단합니다.
+// [SUPERVISION-BULK-ACTIVE] 예전에는 관리자 on/off 기능 플래그(featureFlags.supervision)로
+// 수퍼비전 전체를 껐다 켰지만, 그 스위치를 없애고 문제별 활성화 여부로 일원화했습니다.
+// admin.html의 "수퍼비전 전체 비활성화" 버튼은 결국 모든 수퍼비전 문제의 is_active를 꺼서
+// 이 풀을 비우는 방식으로 동작합니다 — bank API가 is_active=true인 문제만 내려주므로
+// QUESTIONS에 수퍼비전 문제가 하나도 없으면 자연히 이 단계가 빠집니다.
+function isSupervisionEligible(){
+  const access = getInterviewAccessStatus();
+  const approved = access === 'premium' || access === 'admin';
+  // [ADMIN-PRACTICE-PREVIEW] 관리자는 실제 수련생과 동일하게 "지금 미리보고 있는 급수"
+  // 기준으로 노출 여부를 판단합니다 — 예전처럼 무조건 노출되면 2급 미리보기 중에도
+  // 수퍼비전 단계가 보여서 실제 수련생 화면을 검증하는 목적에 맞지 않습니다.
+  const gradeOk = effectivePracticeGrade() === '1';
+  const hasActiveSupervisionPool = QUESTIONS.some(q => q.cat === 'supervision' && q.hasModelAnswer);
+  return approved && gradeOk && hasActiveSupervisionPool;
+}
+
+// [FREE-TRIAL-DEFAULT-CASE] 승인 전(Free) 수련생인지 여부 — 관리자는 항상 실제
+// 승인된 화면과 동일한 미리보기를 보므로 체험판 대상이 아닙니다.
+function isPracticeFreeTrial(){
+  const access = getInterviewAccessStatus();
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  return !isAdmin && access !== 'premium' && access !== 'admin';
+}
+
+function updateSupervisionSectionVisibility(){
+  const timeBlock = document.getElementById('timeSettings-supervision');
+  const note = document.getElementById('supervisionInlineNote');
+  const descText = document.getElementById('setupDescText');
+  const eligible = isSupervisionEligible();
+  const freeTrial = isPracticeFreeTrial();
+  if (timeBlock) timeBlock.style.display = eligible ? 'table-row' : 'none';
+  if (note) note.style.display = eligible ? 'block' : 'none';
+  if (descText) {
+    descText.textContent = eligible
+      ? '응시 급수는 소속 팀 기준으로 관리자가 미리 설정한 값입니다. 사례개념화 1사례 · 상담윤리 1사례 · 수퍼비전 1사례가 무작위로 출제되며, 세 단계가 이어서 진행됩니다.'
+      : freeTrial
+        ? '체험판에서는 관리자가 지정한 기본 사례(사례개념화 1사례 · 상담윤리 1사례)로 진행됩니다. 전체 문제은행에서 무작위로 출제되는 정식 이용은 승인 후 가능합니다.'
+        : '응시 급수는 소속 팀 기준으로 관리자가 미리 설정한 값입니다. 사례개념화 1사례 · 상담윤리 1사례가 무작위로 출제됩니다.';
+  }
+}
+
+// [ADMIN-PRACTICE-PREVIEW] AI 자율연습 탭 전체 렌더링 진입점 — 일반 회원에게는 기존과
+// 동일하게 승인 여부만으로 setupCard를 보여주고, 관리자에게는 미리보기 선택
+// 카드/배너를 먼저 보여줍니다. 세션 진행 중(session이 있음)에는 카드 전환을 건드리지
+// 않습니다(진행 화면을 덮어쓰지 않기 위해).
+function renderPracticeTab(){
+  const access = getInterviewAccessStatus();
+  const approved = access === 'premium' || access === 'admin';
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  const setupCard = document.getElementById('setupCard');
+  const pickerCard = document.getElementById('practicePreviewPickerCard');
+  const trialNotice = document.getElementById('practiceFreeTrialNotice');
+  const startBtnHint = document.getElementById('startBtnHint');
+
+  if (!isAdmin) {
+    if (pickerCard) pickerCard.style.display = 'none';
+    // [FREE-TRIAL-DEFAULT-CASE] 승인 전(Free) 수련생도 더 이상 "승인 필요" 안내로
+    // 화면을 완전히 막지 않고, 관리자가 지정한 기본 사례 체험판을 그대로 보여줍니다.
+    if (trialNotice) trialNotice.style.display = approved ? 'none' : 'block';
+    if (setupCard && !session) setupCard.style.display = 'block';
+    if (startBtnHint) {
+      startBtnHint.textContent = approved
+        ? '사례/상황이 무작위로 출제되며, 영역별로 답변을 구조화해서 작성합니다.'
+        : '관리자가 지정한 기본 사례로 진행되며, 영역별로 답변을 구조화해서 작성합니다.';
+    }
+    updateSupervisionSectionVisibility();
+    updateStartBtnState();
+    return;
+  }
+
+  if (!approved) {
+    // 이론상 관리자는 항상 승인 상태지만, 방어적으로 동일하게 처리합니다.
+    if (pickerCard) pickerCard.style.display = 'none';
+    if (trialNotice) trialNotice.style.display = 'none';
+    if (setupCard) setupCard.style.display = 'none';
+    updateSupervisionSectionVisibility();
+    return;
+  }
+
+  if (trialNotice) trialNotice.style.display = 'none';
+
+  // [ADMIN-SAME-SCREEN] 관리자도 항상 실제 수련생 화면과 동일한 setupCard를 그대로
+  // 보고(선택한 적이 없으면 기본 2급), 화면 아래 "수련생 화면 미리보기" 카드에서
+  // 급수만 바꿔볼 수 있습니다 — 화면을 가리는 별도 선택 단계는 더 이상 없습니다.
+  if (!adminPracticePreviewGrade) adminPracticePreviewGrade = '2';
+
+  if (pickerCard) {
+    pickerCard.style.display = 'block';
+    const btn2 = document.getElementById('practicePreviewBtn2');
+    const btn1 = document.getElementById('practicePreviewBtn1');
+    if (btn2) btn2.classList.toggle('active', adminPracticePreviewGrade === '2');
+    if (btn1) btn1.classList.toggle('active', adminPracticePreviewGrade === '1');
+  }
+  if (startBtnHint) startBtnHint.textContent = '사례/상황이 무작위로 출제되며, 영역별로 답변을 구조화해서 작성합니다.';
+  if (setupCard && !session) setupCard.style.display = 'block';
+  updateSupervisionSectionVisibility();
+  updateStartBtnState();
+}
+
+window.startPracticePreview = function(grade){
+  adminPracticePreviewGrade = grade;
+  renderPracticeTab();
+};
+
+// [MULTI-CERT-2] 상단바의 "모의면접 · FREE/PREMIUM/ADMIN" 배지와 "이용 승인 신청" 버튼을
+// premium.html의 "자격증 · FREE" 배지 / "프리미엄 신청" 버튼과 동일한 방식으로 채웁니다.
+function updateInterviewStatusHeader(){
+  const badge = document.getElementById('interviewStatusBadge');
+  const upgradeBtn = document.getElementById('btnInterviewUpgrade');
+  if (!badge || !upgradeBtn) return;
+  const access = getInterviewAccessStatus(); // 'free' | 'premium' | 'admin'
+  // [COACHING-ONLY-PREMIUM] 회원 등급이 코칭면접코스 소속/플래그로만 결정되므로,
+  // Premium일 때는 상단 라벨도 "모의면접"이 아니라 "코칭면접"으로 보여줍니다.
+  const badgeLabel = access === 'premium' ? '코칭면접' : '모의면접';
+  badge.textContent = `${badgeLabel} · ${access.toUpperCase()}`;
+  upgradeBtn.style.display = (access === 'free') ? 'inline-block' : 'none';
+}
+
+async function enterApp(){
+  document.getElementById('userGreeting').innerHTML =
+    `${currentUser.name || currentUser.email}님` + (currentUser.isAdmin ? ' <span class="badge-role">관리자</span>' : '');
+  updateInterviewStatusHeader();
+
+  // [NAV-FLASH-FIX] 탭 메뉴(nav 버튼)는 기본적으로 전부 노출된 상태로 마크업에 있고,
+  // 어떤 탭을 켜고 끌지는 관리자 설정(feature flags)을 서버에서 받아와야 압니다.
+  // appRoot를 먼저 보여준 뒤 flags를 늦게 적용하면 "전체 탭이 잠깐 보였다가
+  // 허용된 탭만 남는" 깜빡임이 생기므로, flags를 먼저 적용한 뒤에 화면을 드러냅니다.
+  await loadFeatureFlags();
+  document.getElementById('appRoot').style.display = 'block';
+
+  applyAccessGate();
+  renderHistory();
+  loadQuestionBank();
+  loadPracticeDailyStatus();
+  loadMySettings();
+
+  // [ADMIN-TRAINING-DASHBOARD-DEEPLINK] admin.html "📊 면접 코스 현황" 탭의 팀 미리보기가
+  // interview.html?previewTeamId=...&previewTeamName=...로 링크해 들어오면, AI 면접 코스
+  // 탭으로 자동 전환하고 그 팀의 수련생 화면 미리보기를 바로 시작합니다(관리자 전용).
+  // [QBANK-PREVIEW-DEEPLINK] admin.html "🎤 면접 질문은행 관리" 탭의 "▶️ 미리보기 연습"이
+  // interview.html?practiceQuestionId=...로 링크해 들어오면, 그 문제로 바로 미리보기 연습을
+  // 시작합니다(관리자 전용, AI 자율연습용 문제만 가능).
+  if (currentUser && currentUser.isAdmin) {
+    const params = new URLSearchParams(location.search);
+    const pvTeamId = params.get('previewTeamId');
+    const pqId = params.get('practiceQuestionId');
+    if (pvTeamId) {
+      previewTeamId = pvTeamId;
+      previewTeamName = params.get('previewTeamName') || '';
+      const schedBtn = document.getElementById('navScheduleBtn');
+      if (schedBtn) schedBtn.click();
+    } else if (pqId) {
+      await loadQuestionBank();
+      practiceSingleQuestion(pqId);
+    }
+  }
+
+  // [COACHING-COURSE-BANNER-DEEPLINK] index.html/premium.html의 코칭 프로그램 안내
+  // 배너에서 "신청하기"를 누르면 ?tab=coaching(&apply=1)로 들어옵니다 — 회원 누구나
+  // 대상이므로 관리자 전용 분기와 무관하게 처리합니다. 코칭 면접 코스 탭으로 자동
+  // 전환하고, apply=1이면 신청 모달까지 바로 엽니다.
+  const bannerParams = new URLSearchParams(location.search);
+  if (bannerParams.get('tab') === 'coaching') {
+    const coachBtn = document.getElementById('navCoachingBtn');
+    if (coachBtn) coachBtn.click();
+    if (bannerParams.get('apply') === '1') {
+      showUpgradeModal('coaching');
+    }
+  }
+}
+
+// [FEATURE-FLAGS] 관리자가 admin.html에서 켜고 끌 수 있는 탭(AI 자율연습/AI 면접 코스/
+// 면접 안내). 관리자 계정은 꺼진 탭도 계속 이용할 수 있습니다. "질문은행"은 더 이상
+// 이 플래그로 조절하지 않고 관리자 전용으로 고정되어 있습니다(isNavTabVisibleForCurrentUser
+// 참고). "연습 기록"도 플래그와 별개로 관리자에게는 항상 숨겨집니다.
+let featureFlags = {
+  practice: true, schedule: true, coaching: true, history: true, guide: true,
+  // [DOWNLOAD-BTN-TOGGLE] 모의면접 완료 화면의 "결과 텍스트로 저장" 버튼 노출 여부.
+  showDownloadResultBtn: true,
+  // [BANK-ACCOUNT-INFO] 코칭 면접 코스 신청 모달에서 안내할 입금 계좌 정보 —
+  // 관리자가 [설정] 메뉴에서 입력하기 전까지는 빈 값이며, 이 경우 안내 문구를 숨깁니다.
+  bankAccount: { bankName: '', accountNumber: '', accountHolder: '' },
+  // [COACHING-COURSE-SCHEDULE] 코칭 면접 코스 안내 화면에 보여줄 개설 일정 —
+  // 관리자가 [설정]에서 등록하기 전까지는 빈 배열이며, 이 경우 안내 영역을 숨깁니다.
+  coachingCourseSchedule: [],
+  // [ANSWER-MODE] 관리자가 카테고리별·AI자율연습/AI면접코스별로 구조형/통합형 답안 모드를
+  // 제한할 수 있는 전체 기본값. 서버 값을 받아오기 전까지는 둘 다 허용된 상태로 동작합니다.
+  modeCasePracticeStructured: true, modeCasePracticeFreeform: true,
+  modeEthicsPracticeStructured: true, modeEthicsPracticeFreeform: true,
+  modeCaseTeamStructured: true, modeCaseTeamFreeform: true,
+  modeEthicsTeamStructured: true, modeEthicsTeamFreeform: true,
+  // [PRACTICE-TIME-ADMIN-ONLY] 사례개념화·상담윤리·수퍼비전의 준비/답변 시간(초) — 더 이상
+  // 수련생이 조정하지 않고, 관리자 대시보드에서 설정한 전체 공통 값을 그대로 씁니다(AI 자율연습과
+  // AI 면접 코스 모두 동일). 서버 값을 받아오기 전까지는 예전 기본값으로 동작합니다.
+  practicePrepSecCase: 900, practiceAnsSecCase: 180,
+  practicePrepSecEthics: 30, practiceAnsSecEthics: 180,
+  practicePrepSecSupervision: 20, practiceAnsSecSupervision: 360,
+};
+const FEATURE_FLAG_NAV_IDS = { practice: 'navPracticeBtn', schedule: 'navScheduleBtn', coaching: 'navCoachingBtn', history: 'navHistoryBtn', guide: 'navGuideBtn' };
+
+async function loadFeatureFlags(){
+  try {
+    const res = await fetch('/api/interview/feature-flags', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (res.ok) featureFlags = await res.json();
+  } catch (e) {
+    console.error('[interview] feature-flags 로드 실패:', e.message);
+  }
+  applyFeatureFlagsToNav();
+  renderPracticeTimeDisplay();
+  // [DOWNLOAD-BTN-TOGGLE] 관리자가 꺼두면 완료 화면의 "결과 텍스트로 저장" 버튼을 숨깁니다.
+  const downloadBtn = document.getElementById('downloadBtn');
+  if (downloadBtn) downloadBtn.style.display = (featureFlags.showDownloadResultBtn !== false) ? '' : 'none';
+  // [BANK-ACCOUNT-INFO] "코칭 면접 코스 안내" 카드에 입금 계좌 안내를 채웁니다
+  // (관리자가 [설정]에 계좌 정보를 등록해둔 경우에만 표시됨).
+  const coachingBankInfoEl = document.getElementById('coachingBankInfo');
+  if (coachingBankInfoEl) coachingBankInfoEl.innerHTML = renderBankInfoHTML();
+  // [COACHING-COURSE-SCHEDULE] "코칭 면접 코스 안내" 카드에 개설 일정을 채웁니다
+  // (관리자가 [설정]에 일정을 하나 이상 등록해둔 경우에만 표시됨).
+  const coachingScheduleAnnouncementEl = document.getElementById('coachingScheduleAnnouncement');
+  if (coachingScheduleAnnouncementEl) coachingScheduleAnnouncementEl.innerHTML = renderCoachingScheduleAnnouncementHTML();
+  // [COACHING-COURSE-BANNER] 개설된 회차가 있고 관리자가 "코칭 면접 코스" 탭 자체를
+  // 꺼두지 않았다면, 최상단에도 신청 유도 배너를 보여줍니다.
+  const coachingPromoBannerEl = document.getElementById('coachingPromoBanner');
+  if (coachingPromoBannerEl) {
+    coachingPromoBannerEl.innerHTML = (featureFlags.coaching !== false && isCoachingCourseUpcoming(featureFlags.coachingCourseSchedule))
+      ? renderCoachingPromoBannerHTML({ onclick: "showUpgradeModal('coaching')" })
+      : '';
+  }
+}
+
+// [PRACTICE-TIME-ADMIN-ONLY] 초 단위 값을 "분" 표시용으로 변환합니다 — 0.5분 단위까지는
+// 소수점 한 자리로, 그 외는 반올림해서 보여줍니다(예: 900→15, 30→0.5, 20→0.3).
+function formatMinutesLabel(sec){
+  const min = Math.round((sec / 60) * 10) / 10;
+  return (Number.isInteger(min) ? min.toString() : min.toFixed(1));
+}
+
+// [PRACTICE-TIME-ADMIN-ONLY] 연습 설정 카드의 시간 표시(분 단위)를 채웁니다. 사례개념화·
+// 상담윤리·수퍼비전 모두 관리자가 설정한 featureFlags 값을 씁니다.
+function renderPracticeTimeDisplay(){
+  const map = {
+    'prepMin-case': featureFlags.practicePrepSecCase,
+    'ansMin-case': featureFlags.practiceAnsSecCase,
+    'prepMin-ethics': featureFlags.practicePrepSecEthics,
+    'ansMin-ethics': featureFlags.practiceAnsSecEthics,
+    'prepMin-supervision': featureFlags.practicePrepSecSupervision,
+    'ansMin-supervision': featureFlags.practiceAnsSecSupervision,
+  };
+  Object.keys(map).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = formatMinutesLabel(map[id]);
+  });
+}
+
+// [NAV-TAB-VISIBILITY] 탭별 노출 규칙을 한 곳에 모아둡니다 — 나브 렌더링과 탭 전환 클릭
+// 가드(둘 다 아래) 양쪽에서 재사용해 규칙이 어긋나지 않게 합니다.
+// - history: 관리자에게는 "내 연습 기록" 대신 전체 수련생 연습기록(관리자 전용)을 보여줍니다
+//   (renderHistory 참고) — admin.html에 있던 "면접 연습기록" 관리 탭을 여기로 옮겼습니다.
+function isNavTabVisibleForCurrentUser(key){
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  return isAdmin || featureFlags[key] !== false;
+}
+
+function applyFeatureFlagsToNav(){
+  let activeTabHidden = false;
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  Object.keys(FEATURE_FLAG_NAV_IDS).forEach(key => {
+    const btn = document.getElementById(FEATURE_FLAG_NAV_IDS[key]);
+    if (!btn) return;
+    const visible = isNavTabVisibleForCurrentUser(key);
+    btn.style.display = visible ? '' : 'none';
+    if (!visible && btn.classList.contains('active')) activeTabHidden = true;
+    // [FEATURE-FLAG-OFF-BADGE] 관리자에게는 꺼진 탭도 계속 보이므로(위에서 항상
+    // visible=true), 수련생 화면에는 꺼져 있다는 걸 별도 표시로 알려줍니다.
+    const flagOff = featureFlags[key] === false;
+    btn.classList.toggle('nav-tab-off', isAdmin && flagOff);
+    btn.title = (isAdmin && flagOff) ? '수련생 화면에는 꺼져 있는 탭입니다 (관리자에게만 계속 보입니다)' : '';
+  });
+  // 현재 보고 있던 탭이 방금 꺼졌다면(관리자 아님) 첫 번째로 보이는 탭으로 이동합니다.
+  if (activeTabHidden) {
+    const firstVisible = Array.from(document.querySelectorAll('#nav button')).find(b => b.style.display !== 'none');
+    if (firstVisible) firstVisible.click();
+  }
+}
+
+// [TEAM-SETTINGS] 응시 급수 — 더 이상 수련생이 직접 고르지 않고 소속 팀 기준
+// 관리자 설정값을 그대로 표시합니다. 소속 팀이 없으면(관리자 등) 기본값(2급)을
+// 사용합니다. (AI 자율연습 문항 수는 더 이상 팀 설정을 따르지 않고 항상 사례개념화
+// 1개 + 상담윤리 1개(+1급이면 수퍼비전 1개)로 고정입니다 — pickCombinedQuestions 참고.)
+let teamGrade = '2';
+
+async function loadMySettings(){
+  try {
+    const res = await fetch('/api/interview/my-settings', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (!res.ok) throw new Error('설정을 불러오지 못했습니다.');
+    const data = await res.json();
+    teamGrade = data.grade || '2';
+  } catch (e) {
+    console.error('[interview] my-settings 로드 실패:', e.message);
+    teamGrade = '2';
+  }
+  // [SETUP-CARD-STATIC-TITLE] gradeDisplay는 이제 등급과 무관하게 항상 "연습 진행
+  // 기준"이라는 고정 문구를 보여주므로(위 setupCard의 정적 HTML 참고), 여기서는
+  // 더 이상 teamGrade로 덮어쓰지 않습니다. renderPracticeTab()도 마찬가지입니다.
+  renderPracticeTab();
+}
+
+// ============================================================
+// 이용 승인 신청 모달 (premium.html의 프리미엄 신청과 동일한 흐름,
+// examType은 counselor_interview로 고정)
+// ============================================================
+// [PRICE-BY-GRADE] counselor_interview는 급수(1급/2급)에 따라 가격이 다릅니다 —
+// info.price가 { '2': {...}, '1': {...} } 형태이면 선택된 급수의 가격만 뽑아서
+// 보여주고, 혹시 예전처럼 단일 객체({label, amount})면 그대로 씁니다(하위호환).
+function priceForGrade(info, grade, tier){
+  if (!info) return null;
+  // [PRACTICE-ONLY][STEP5-COACHING] tier === 'practice'이면 practicePrice(AI 자율연습
+  // 단독 요금), tier === 'coaching'이면 coachingPrice(코칭 면접 코스 요금), 그 외에는
+  // 기존 price(AI 면접 코스 요금)를 사용합니다. 해당 요금이 없으면(다른 자격증 등)
+  // 항상 price로 폴백합니다.
+  let priceMap = info.price;
+  if (tier === 'practice' && info.practicePrice) priceMap = info.practicePrice;
+  else if (tier === 'coaching' && info.coachingPrice) priceMap = info.coachingPrice;
+  if (!priceMap) return null;
+  if (priceMap['1'] || priceMap['2']) return priceMap[grade] || priceMap['2'] || priceMap['1'];
+  return priceMap;
+}
+
+// [GRADE-SCOPED-BENEFITS] 급수에 따라 실제 지원 범위(수퍼비전 포함 여부)가 다르므로,
+// "프리미엄 회원" 혜택 목록의 첫 항목만 급수별 문구로 바꿔서 보여줍니다. 나머지
+// 항목은 급수와 무관하게 동일합니다.
+function getCounselorInterviewPremiumList(info, grade){
+  const first = (grade === '1')
+    ? '사례개념화·상담윤리·수퍼비전 실전 코칭 지원'
+    : '사례개념화·상담윤리 실전 코칭 지원';
+  return [first, ...((info.premium || []).slice(1))];
+}
+
+// [BANK-ACCOUNT-INFO] "코칭 면접 코스 안내" 카드에 상시 노출하는 입금 계좌 안내 —
+// 관리자가 [설정]에서 계좌 정보를 셋 다 채워둔 경우에만 표시합니다(신청 화면이
+// 아니라 안내 화면에 두어, 신청 전에 미리 계좌를 확인할 수 있게 합니다).
+function renderBankInfoHTML(){
+  const b = featureFlags && featureFlags.bankAccount;
+  if (!b || !b.bankName || !b.accountNumber || !b.accountHolder) return '';
+  return `
+    <div style="text-align:left; margin:14px 0; padding:14px 16px; border:1px solid #fbbf24; border-radius:10px; background:#fffbeb;">
+      <label style="display:block; font-size:var(--fs-label); font-weight:700; color:#92400e; margin-bottom:6px;">💳 입금 계좌 안내</label>
+      <div style="font-size:var(--fs-body); color:#4a5568; line-height:1.7;">${escapeHtml(b.bankName)} ${escapeHtml(b.accountNumber)} (예금주: ${escapeHtml(b.accountHolder)})</div>
+      <div class="muted" style="margin-top:4px; font-size:var(--fs-caption);">신청 후 관리자 확인을 거쳐 입금이 확인되면 팀 배정 안내 메일을 받으실 수 있습니다.</div>
+    </div>`;
+}
+
+// [COACHING-COURSE-SCHEDULE] "코칭 면접 코스 안내" 카드에 개설 일정을 나열합니다 —
+// 관리자가 [설정]에서 등록한 급수별 일정(중복 개설 허용)을 급수 → 시작일 순으로 보여줍니다.
+function renderCoachingScheduleAnnouncementHTML(){
+  const rows = Array.isArray(featureFlags.coachingCourseSchedule) ? featureFlags.coachingCourseSchedule : [];
+  if (rows.length === 0) return '';
+  const gradeLabel = { '1': '1급', '2': '2급' };
+  const sorted = [...rows].sort((a, b) => {
+    if ((a.grade || '') !== (b.grade || '')) return (a.grade || '').localeCompare(b.grade || '');
+    return (a.startDate || '').localeCompare(b.startDate || '');
+  });
+  const items = sorted.map(r => {
+    // [COACHING-SCHEDULE-DOW-TIME] 날짜에는 요일을, 관리자가 입력했으면 진행 시각도 함께 보여줍니다.
+    const startWithDow = formatDateWithDow(r.startDate || '');
+    const period = r.endDate ? `${escapeHtml(startWithDow)} ~ ${escapeHtml(formatDateWithDow(r.endDate))}` : escapeHtml(startWithDow);
+    const time = formatTimeRangeKo(r.startTime || '', r.endTime || '');
+    const timeText = time ? ` · ${escapeHtml(time)}` : '';
+    const capacity = r.capacity ? ` · 정원 ${escapeHtml(String(r.capacity))}명` : '';
+    const note = r.note ? ` <span class="muted">(${escapeHtml(r.note)})</span>` : '';
+    return `<li><b>${gradeLabel[r.grade] || escapeHtml(r.grade || '')}</b> · ${period}${timeText}${capacity}${note}</li>`;
+  }).join('');
+  return `
+    <div style="text-align:left; margin:14px 0; padding:14px 16px; border:1px solid #cbd5e0; border-radius:10px; background:#f7fafc;">
+      <label style="display:block; font-size:var(--fs-label); font-weight:700; color:#4a5568; margin-bottom:6px;">📅 개설 일정</label>
+      <ul style="margin:0; padding-left:18px; font-size:var(--fs-body); color:#4a5568; line-height:1.8;">${items}</ul>
+    </div>`;
+}
+
+let upgradeModalDefaultTier = 'course';
+
+async function renderUpgradeModal(){
+  const body = document.getElementById('upgrade-modal-body');
+  const info = (typeof PREMIUM_INFO !== 'undefined') ? PREMIUM_INFO.counselor_interview : null;
+  if (!info){
+    body.innerHTML = '<p style="color:#e53e3e;">안내 정보를 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.</p>';
+    return;
+  }
+  const initialGrade = '2';
+  // [TIER-LIST-SYNC] AI 자율연습은 별도로 신청하는 상품이 아니라 코칭 면접 코스에
+  // 자동으로 포함되는 서비스라 신청 유형 목록에서 제외합니다. AI 면접 코스는 관리자가
+  // 해당 탭을 꺼두면(featureFlags.schedule === false) 이 목록에서도 함께 빠집니다.
+  const hasCoaching = !!info.coachingPrice;
+  const courseAvailable = isNavTabVisibleForCurrentUser('schedule');
+  const tierOptions = [];
+  if (courseAvailable) tierOptions.push({ value: 'course', label: 'AI 면접 코스 (AI 자율연습 자동 포함)' });
+  if (hasCoaching) tierOptions.push({ value: 'coaching', label: '코칭 면접 코스 (소그룹 실시간 화상 코칭)' });
+  const initialTier = tierOptions[0] ? tierOptions[0].value : 'course';
+  upgradeModalDefaultTier = initialTier;
+  body.innerHTML = `
+    <div class="upgrade-title">${info.title}</div>
+    <div style="text-align:left; margin:14px 0; padding:14px 16px; border:2px solid var(--accent); border-radius:10px; background:#eaf1fb;">
+      <label style="display:block; font-size:var(--fs-label); font-weight:700; color:var(--accent); margin-bottom:6px;">📌 승인 요청 급수</label>
+      <select id="upgradeGradeSelect" style="width:100%; padding:10px; border:1px solid var(--accent); border-radius:8px; font-size:var(--fs-body); font-weight:700;">
+        <option value="2">2급</option>
+        <option value="1">1급</option>
+      </select>
+      <div class="muted" style="margin-top:4px; font-size:var(--fs-caption);">급수에 따라 이용 요금이 달라집니다.</div>
+    </div>
+    ${tierOptions.length > 1 ? `
+    <div style="text-align:left; margin:14px 0;">
+      <label style="display:block; font-size:var(--fs-label); font-weight:600; color:var(--text); margin-bottom:6px;">신청 유형</label>
+      <select id="upgradeTierSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:var(--fs-body);">
+        ${tierOptions.map(t => `<option value="${t.value}">${t.label}</option>`).join('')}
+      </select>
+      <div class="muted" style="margin-top:4px; font-size:var(--fs-caption);">소그룹 실시간 화상 코칭까지 원하시면 "코칭 면접 코스"를, 실전 모의면접 일정 위주로 이용하시려면 "AI 면접 코스"를 선택해 주세요. 두 유형 모두 AI 자율연습이 자동으로 포함됩니다.</div>
+    </div>` : ''}
+    <div id="upgradeTierBenefits">
+      ${window.renderTierBenefitsHTML({ free: info.free, premium: getCounselorInterviewPremiumList(info, initialGrade) }, null, { premium: '📋 지원 내용' })}
+    </div>
+    <div class="upgrade-payment-info" id="upgradePaymentInfo">
+      ${window.renderPricePlanSelectorHTML(priceForGrade(info, initialGrade, initialTier))}
+    </div>
+    <button class="btn-email-apply" onclick="sendUpgradeEmail()">📧 이메일로 이용 승인 신청하기</button>
+    <button class="btn-close-text" onclick="closeUpgradeModal()">✕ 닫기</button>
+  `;
+  // [PRICE-BY-GRADE][PRACTICE-ONLY] 급수 또는 신청 유형 선택이 바뀌면 위 이용 요금
+  // 표시도 즉시 갱신합니다.
+  const gradeSelectEl = document.getElementById('upgradeGradeSelect');
+  const tierSelectEl = document.getElementById('upgradeTierSelect');
+  const updatePriceDisplay = () => {
+    const grade = gradeSelectEl ? gradeSelectEl.value : initialGrade;
+    const tier = tierSelectEl ? tierSelectEl.value : initialTier;
+    const paymentInfoEl = document.getElementById('upgradePaymentInfo');
+    if (paymentInfoEl) {
+      paymentInfoEl.innerHTML = window.renderPricePlanSelectorHTML(priceForGrade(info, grade, tier));
+    }
+    // [GRADE-SCOPED-BENEFITS] 급수가 바뀌면 "프리미엄 회원" 혜택 문구(수퍼비전
+    // 포함 여부)도 함께 갱신합니다.
+    const benefitsEl = document.getElementById('upgradeTierBenefits');
+    if (benefitsEl) {
+      benefitsEl.innerHTML = window.renderTierBenefitsHTML({ free: info.free, premium: getCounselorInterviewPremiumList(info, grade) }, null, { premium: '📋 지원 내용' });
+    }
+  };
+  if (gradeSelectEl) gradeSelectEl.addEventListener('change', updatePriceDisplay);
+  if (tierSelectEl) tierSelectEl.addEventListener('change', updatePriceDisplay);
+}
+
+window.showUpgradeModal = async function(presetTier){
+  document.getElementById('upgrade-modal').style.display = 'flex';
+  await renderUpgradeModal();
+  // [COACHING-TAB] 코칭 면접 코스 안내 카드의 신청 버튼처럼, 특정 신청 유형을 미리
+  // 선택된 채로 모달을 열 때 사용합니다(기존 호출부는 인자 없이 호출하므로 그대로 동작).
+  if (presetTier) {
+    const tierSelectEl = document.getElementById('upgradeTierSelect');
+    if (tierSelectEl && Array.from(tierSelectEl.options).some(o => o.value === presetTier)) {
+      tierSelectEl.value = presetTier;
+      tierSelectEl.dispatchEvent(new Event('change'));
+    }
+  }
+};
+
+window.closeUpgradeModal = function(e){
+  if (!e || e.target === document.getElementById('upgrade-modal')){
+    document.getElementById('upgrade-modal').style.display = 'none';
+  }
+};
+
+window.sendUpgradeEmail = async function(){
+  const btn = document.querySelector('.btn-email-apply');
+  if (btn){ btn.disabled = true; btn.textContent = '발송 중...'; }
+  try {
+    const gradeEl = document.getElementById('upgradeGradeSelect');
+    const requestedGrade = gradeEl ? gradeEl.value : null;
+    const tierEl = document.getElementById('upgradeTierSelect');
+    const requestedTier = tierEl ? tierEl.value : upgradeModalDefaultTier;
+    const res  = await fetch('/api/send-mail', {
+      method : 'POST',
+      headers: authHeaders(),
+      body   : JSON.stringify({ examType: 'counselor_interview', requestedGrade, requestedTier })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    // [TIER-AWARE-COMPLETION-MSG] 코칭 면접 코스는 즉시 활성화(1 영업일)가 아니라
+    // 입금 확인 → 소그룹(9명 기준) 구성 → 팀 배정 순서로 진행되므로 문구를 다르게
+    // 안내합니다. AI 면접 코스/AI 자율연습 단독은 기존처럼 승인 즉시 활성화됩니다.
+    const completionSub = (requestedTier === 'coaching')
+      ? '신청이 접수되었습니다.<br>입금 확인 후 소그룹(9명 기준) 구성이 완료되면 팀 배정 안내 메일을 보내드립니다.'
+      : '신청 메일이 발송되었습니다.<br>입금 확인 후 1 영업일 이내 활성화됩니다.';
+    document.getElementById('upgrade-modal-body').innerHTML = `
+      <div class="upgrade-icon">✅</div>
+      <div class="upgrade-title">신청 완료!</div>
+      <p class="upgrade-sub">${completionSub}</p>
+      <button class="btn-close-text" onclick="closeUpgradeModal()" style="margin-top:10px;">닫기</button>
+    `;
+  } catch (e){
+    alert('신청 실패: ' + e.message);
+    if (btn){ btn.disabled = false; btn.textContent = '📧 이메일로 이용 승인 신청하기'; }
+  }
+};
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if (typeof window.handleLogout === 'function') window.handleLogout();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!requireLoginOrRedirect()) return;
+  enterApp();
+});
+
+// [SUPERVISION-PHASE2] 수퍼비전 준비/답변 시간(초) — 사례개념화·상담윤리와 달리 고정값이며
+// 관리자 설정 대상이 아닙니다. startSession/practiceSingleQuestion/renderPracticeTimeDisplay가
+// 공통으로 이 상수를 씁니다.
+const SUPERVISION_PREP_SEC = 20;
+const SUPERVISION_ANS_SEC = 360;
+
+// ---------- CASE / ETHICS CONTENT ----------
+const CASE_FRAME_HINT = '사례개념화 8단계로 답변하세요: ① 주호소문제 → ② 촉발요인 → ③ 부적응적 패턴 → ④ 유발요인(소인, 이론적 관점) → ⑤ 유지요인(이론적 관점, 부정적·긍정적) → ⑥ 위험요인·안전확인 → ⑦ 상담목표 → ⑧ 상담전략(개입계획)';
+const ETHICS_FRAME_HINT = '윤리적 의사결정 4단계로 답변하세요: ① 윤리적 쟁점 파악 → ② 관련 윤리강령·법적 근거 → ③ 이해관계자·영향 검토 → ④ 대응 절차·결정';
+// [SUPERVISION-PHASE2] 수퍼비전은 정해진 단계별 프레임이 없는 이론 설명형 문제라
+// 별도 안내 문구만 둡니다(구조형 프레임 없음, 통합형 서술만 지원).
+const SUPERVISION_FRAME_HINT = '정해진 답변 단계(프레임)는 없습니다. 질문에 대해 자유롭게 서술하세요.';
+
+const CASE_FIELDS = [
+  {key:'presenting', label:'① 주호소문제', placeholder:'내담자가 보고하는 핵심 문제를 구체적(행동·정서·인지·신체)으로 정리하세요.'},
+  {key:'precipitating', label:'② 촉발요인', placeholder:'왜 하필 지금 문제가 불거졌는지, 최근의 계기가 된 사건이나 상황을 서술하세요.'},
+  {key:'pattern', label:'③ 부적응적 패턴', placeholder:'내담자에게서 반복적으로 나타나는 사고·정서·행동 패턴을, 관찰된 그대로 구체적으로 서술하세요. (아직 이론적 해석은 넣지 마세요)'},
+  {key:'predisposing', label:'④ 유발요인 (소인, 이론적 관점)', placeholder:'③의 패턴이 형성되기 쉬운 배경이 된 요인(발달사, 기질, 성격, 핵심신념 등)을, 하나의 상담이론 관점을 선택하여 설명하세요.'},
+  {key:'maintaining', label:'⑤ 유지요인 (이론적 관점)', placeholder:'③의 패턴을 지속시키는 부정적 요인(회피행동, 왜곡된 신념, 환경적 강화 등)과, 완화 요인이 되는 긍정적 요인(강점, 지지자원)을, ④에서 선택한 이론적 관점과 일관되게 함께 서술하세요.'},
+  {key:'risk', label:'⑥ 위험 요인 및 안전 확인', placeholder:'자·타해 위험, 안전 이슈 등을 확인하고 필요한 조치를 서술하세요. (해당 없으면 "특이 위험 없음"으로 명시)'},
+  {key:'goals', label:'⑦ 상담목표', placeholder:'구체적이고 실행 가능한 상담목표(단기·장기)를 제시하세요.'},
+  {key:'strategy', label:'⑧ 상담전략 (개입계획)', placeholder:'상담목표를 달성하기 위한 구체적인 개입 전략과 기법을 제시하세요.'},
+];
+
+const ETHICS_FIELDS = [
+  {key:'issue', label:'① 윤리적 쟁점 파악', placeholder:'이 상황에서 어떤 윤리적 쟁점이 발생하는지 명확히 진술하세요.'},
+  {key:'code', label:'② 관련 윤리강령·법적 근거', placeholder:'관련되는 윤리강령 조항(예: 비밀보장, 다중관계 등)이나 법적 의무를 제시하세요.'},
+  {key:'stakeholders', label:'③ 이해관계자 및 영향 검토', placeholder:'내담자, 보호자, 기관, 사회 등 관련된 이해관계자와 각각에게 미칠 영향을 검토하세요.'},
+  {key:'action', label:'④ 대응 절차 및 결정', placeholder:'구체적으로 어떤 절차로 행동할 것인지, 그렇게 판단한 이유를 함께 서술하세요.'},
+];
+
+const FIELDS_MAP = { case: CASE_FIELDS, ethics: ETHICS_FIELDS };
+const FRAME_HINT_MAP = { case: CASE_FRAME_HINT, ethics: ETHICS_FRAME_HINT, supervision: SUPERVISION_FRAME_HINT };
+
+const CHECKLISTS = {
+  case: [
+    "주호소문제를 행동·정서·인지·신체 차원에서 구체적으로 파악했다",
+    "촉발요인(왜 지금인가)을 명확히 짚었다",
+    "부적응적 패턴을 관찰된 그대로 구체적이고 명확하게 서술했다",
+    "유발요인·소인(왜 이 사람에게인가)을 하나의 상담이론 관점에서 논리적으로 설명했다",
+    "유지요인을 부정적 요인과 긍정적 요인(강점·자원) 양쪽에서, 유발요인과 같은 이론적 관점으로 분석했다",
+    "위험요인(자·타해 등)과 안전 확인을 빠뜨리지 않았다",
+    "상담목표를 구체적이고 실행 가능하게 제시했다",
+    "상담목표에 부합하는 구체적인 상담전략(개입계획)을 제시했다",
+    "전체 답변이 8단계 구조를 따라 논리적으로 연결됐다",
+  ],
+  ethics: [
+    "윤리적 쟁점을 정확하고 명확하게 짚어냈다",
+    "관련 윤리강령·법적 근거를 구체적으로 언급했다",
+    "내담자를 포함한 이해관계자의 입장을 균형 있게 검토했다",
+    "비밀보장 원칙과 그 예외(생명·안전 등)를 구분해서 설명했다",
+    "실행 가능한 구체적 대응 절차를 제시하고 내담자 복지를 최우선에 두었다",
+  ],
+};
+
+// [QBANK-DB] 질문은행은 더 이상 여기에 하드코딩하지 않고, 관리자가
+// admin.html에서 등록/공개일을 관리하는 Supabase interview_questions
+// 테이블에서 불러옵니다. enterApp() 시점에 loadQuestionBank()가 채웁니다.
+let QUESTIONS = [];
+let questionsLoaded = false;
+
+// [PRACTICE-DAILY-LIMIT] AI 자율연습은 하루(한국시간 기준)에 사례개념화·상담윤리 각 1개까지만
+// 허용합니다. enterApp()에서 loadPracticeDailyStatus()가 오늘 이미 완료한 카테고리를 받아오고,
+// updateStartBtnState()가 질문은행 로드 상태와 함께 시작 버튼/안내 문구를 갱신합니다.
+let practiceDailyStatus = { caseDoneToday: false, ethicsDoneToday: false, supervisionDoneToday: false };
+let dailyStatusLoaded = false;
+// [FREE-TRIAL-USAGE-CAP] Free(체험판) 회원 전용 — 서버가 practice-today-status
+// 응답에 함께 내려주는 사례별 총 사용 횟수/상한입니다(하루 제한이 아닙니다).
+let practiceFreeTrialUsage = { case: 0, ethics: 0 };
+let practiceFreeTrialLimit = 5;
+// [PREMIUM-CASE-POOL] Premium 회원의 카테고리별 사례 풀 크기 · 사례당 사용 횟수 ·
+// 소진 여부 — practice-today-status 응답의 premiumPool을 그대로 반영합니다.
+let practicePremiumPool = { poolSize: 10, usesPerCase: 5, caseExhausted: false, ethicsExhausted: false };
+
+async function loadPracticeDailyStatus(){
+  try {
+    const res = await fetch('/api/interview/practice-today-status', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (res.ok) {
+      const data = await res.json();
+      practiceDailyStatus = data;
+      if (data.freeTrialUsage) practiceFreeTrialUsage = data.freeTrialUsage;
+      if (data.freeTrialLimit) practiceFreeTrialLimit = data.freeTrialLimit;
+      if (data.premiumPool) practicePremiumPool = data.premiumPool;
+    }
+  } catch (e) {
+    console.error('[interview] 연습 현황 로드 실패:', e.message);
+  } finally {
+    dailyStatusLoaded = true;
+  }
+  updateStartBtnState();
+}
+
+// [MERGED-PRACTICE-FLOW] 사례개념화 · 상담윤리 · (1급이면) 수퍼비전을 한 번의 "연습 시작"
+// 클릭으로 이어서 진행합니다. 세 영역 모두 오늘 이미 완료했을 때만 버튼을 잠급니다 — 하나만
+// 남아 있어도 남은 영역만 이어서 진행할 수 있어야 하므로(pickCombinedQuestions 참고).
+function allPracticeAreasDoneToday(){
+  const supervisionApplies = isSupervisionEligible();
+  return practiceDailyStatus.caseDoneToday
+    && practiceDailyStatus.ethicsDoneToday
+    && (!supervisionApplies || practiceDailyStatus.supervisionDoneToday);
+}
+
+// [FREE-TRIAL-USAGE-DISPLAY] Free/Expired 회원에게 "상한 몇 회 / 지금까지 몇 회
+// 사용"을 상시 보여줍니다. 소진 여부와 무관하게 항상 최신 값으로 갱신되며,
+// 소진되면 기존 practiceDailyNotice(빨간 경고문)가 별도로 함께 표시됩니다.
+function renderFreeTrialUsageInfo(){
+  const usageInfo = document.getElementById('practiceFreeTrialUsageInfo');
+  if (!usageInfo) return;
+  if (isAdminPracticePreviewing()) {
+    usageInfo.style.display = 'none';
+    return;
+  }
+  if (isPracticeFreeTrial()) {
+    // [FREE-TRIAL-DISPLAY-CAP] 서버 집계값이 드물게 상한을 넘어 들어오더라도
+    // (예: 과거 이중 제출 등) 화면에는 상한을 넘는 값이 보이지 않도록 캡(cap)합니다.
+    const caseUsed = Math.min(practiceFreeTrialUsage.case || 0, practiceFreeTrialLimit);
+    const ethicsUsed = Math.min(practiceFreeTrialUsage.ethics || 0, practiceFreeTrialLimit);
+    // [FREE-TRIAL-USAGE-DISPLAY-EMPHASIS] "체험 횟수"라는 것을 바로 알 수 있도록 라벨을
+    // 붙이고, 실제 숫자(사용 현황)는 굵은 포인트 색으로 강조합니다.
+    usageInfo.innerHTML = `영역(사례개념화·상담윤리)별로 기본 사례 1개씩 제공되며, 사례당 ${practiceFreeTrialLimit}회까지 체험할 수 있습니다.<br>`
+      + `<span style="font-weight:700; font-size:var(--fs-body); color:var(--accent);">📊 나의 무료 체험 사용 횟수 — 사례개념화 ${caseUsed}/${practiceFreeTrialLimit}회 · 상담윤리 ${ethicsUsed}/${practiceFreeTrialLimit}회 사용</span>`;
+    usageInfo.style.display = 'block';
+    return;
+  }
+  // [PREMIUM-CASE-POOL] Premium 회원에게는 카테고리별 사례 풀 크기 · 사례당 이용
+  // 횟수를 안내합니다(관리자가 설정한 실제 값을 그대로 반영).
+  if (getInterviewAccessStatus() === 'premium') {
+    usageInfo.textContent = `영역(사례개념화·상담윤리)별로 ${practicePremiumPool.poolSize}개 사례가 제공되며, 사례당 ${practicePremiumPool.usesPerCase}회까지 연습할 수 있습니다.`;
+    usageInfo.style.display = 'block';
+    return;
+  }
+  usageInfo.style.display = 'none';
+}
+
+function updateStartBtnState(){
+  const startBtn = document.getElementById('startBtn');
+  const notice = document.getElementById('practiceDailyNotice');
+  if (!startBtn) return;
+  renderFreeTrialUsageInfo();
+
+  // [ADMIN-PRACTICE-PREVIEW] 미리보기는 관리자 본인 계정의 실제 하루 이용 현황과
+  // 무관하게 언제든 다시 볼 수 있어야 하므로 일일 제한 체크를 건너뜁니다.
+  if (!isAdminPracticePreviewing() && dailyStatusLoaded && allPracticeAreasDoneToday()) {
+    startBtn.disabled = true;
+    if (isPracticeFreeTrial()) {
+      // [FREE-TRIAL-USAGE-CAP] Free 회원은 "오늘 완료"가 아니라 "사례별 총
+      // 사용 횟수(기본 5회) 소진"입니다 — 다음 이용은 코칭 면접 코스 등록 후.
+      startBtn.textContent = '무료 체험 사용 완료';
+      if (notice) {
+        notice.textContent = `무료 체험(기본 사례)은 사례개념화·상담윤리 각 ${practiceFreeTrialLimit}회까지 이용할 수 있습니다. 모두 사용하셨습니다 — 위 "코칭면접코스 안내" 버튼에서 코칭 면접 코스를 확인하고 등록해 주세요.`;
+        notice.style.display = 'block';
+      }
+    } else if (practicePremiumPool.caseExhausted && practicePremiumPool.ethicsExhausted) {
+      // [PREMIUM-CASE-POOL] 하루 제한이 아니라 풀 자체(사례개념화·상담윤리 모두)가
+      // 소진된 경우 — "오늘"이 아니라 "더 이상 남은 사례가 없다"는 것을 분명히 알립니다.
+      startBtn.textContent = '제공된 사례를 모두 사용했습니다';
+      if (notice) {
+        notice.textContent = `영역(사례개념화·상담윤리)별로 제공된 ${practicePremiumPool.poolSize}개 사례를 각 ${practicePremiumPool.usesPerCase}회씩 모두 이용하셨습니다. 추가 이용을 원하시면 관리자에게 문의해 주세요.`;
+        notice.style.display = 'block';
+      }
+    } else {
+      startBtn.textContent = '오늘의 AI 자율연습 완료';
+      if (notice) {
+        notice.textContent = isSupervisionEligible()
+          ? '오늘은 사례개념화·상담윤리·수퍼비전 AI 자율연습을 이미 완료했습니다. 내일 다시 이용해 주세요.'
+          : '오늘은 사례개념화·상담윤리 AI 자율연습을 이미 완료했습니다. 내일 다시 이용해 주세요.';
+        notice.style.display = 'block';
+      }
+    }
+    return;
+  }
+  if (notice) notice.style.display = 'none';
+
+  if (!questionsLoaded) {
+    startBtn.disabled = true;
+    startBtn.textContent = '불러오는 중...';
+  } else if (QUESTIONS.length === 0) {
+    startBtn.disabled = true;
+    startBtn.textContent = '질문은행을 불러올 수 없습니다';
+  } else {
+    startBtn.disabled = false;
+    startBtn.textContent = isAdminPracticePreviewing() ? '모의면접 미리보기' : (isPracticeFreeTrial() ? '기본 사례 체험 시작' : '연습 시작');
+  }
+}
+
+async function loadQuestionBank(){
+  try {
+    const res = await fetch('/api/interview/bank', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (!res.ok) throw new Error('질문은행을 불러오지 못했습니다.');
+    const data = await res.json();
+    QUESTIONS = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('[interview] 질문은행 로드 실패:', e.message);
+    QUESTIONS = [];
+  } finally {
+    questionsLoaded = true;
+  }
+
+  // [SUPERVISION-BULK-ACTIVE] 수퍼비전 가용 여부(isSupervisionEligible)가 QUESTIONS 로드
+  // 결과에 좌우되므로, 문제은행을 불러온 뒤에도 안내 블록을 다시 계산해야 합니다.
+  updateSupervisionSectionVisibility();
+  updateStartBtnState();
+}
+
+
+// [QBANK-SUPERVISION] 수퍼비전도 다른 카테고리와 동일하게 질문은행 필터에 포함합니다.
+// 서버(bank API)가 이미 급수(1급/관리자)에 따라 QUESTIONS 배열에 수퍼비전 문제를 담을지
+// 말지를 결정하므로, 여기서 따로 급수를 가리지 않아도 2급 사용자에게는 자연히 빈 결과로
+// 보입니다(체크박스는 보이되 해당되는 문제가 없을 뿐).
+const CATEGORIES = [
+  {id:"case", label:"사례개념화"},
+  {id:"ethics", label:"상담윤리"},
+  {id:"supervision", label:"수퍼비전"},
+];
+
+// ============================================================
+// NAV
+// ============================================================
+document.querySelectorAll('#nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    // [FEATURE-FLAGS] 꺼져 있거나(관리자가 끈 탭) 애초에 관리자 전용인 탭은 버튼이 숨겨져
+    // 있어도 콘솔 등으로 직접 클릭될 수 있으니 여기서도 다시 막습니다 (버튼 숨김과 별개의 방어 코드).
+    if (FEATURE_FLAG_NAV_IDS[btn.dataset.tab] && !isNavTabVisibleForCurrentUser(btn.dataset.tab)) return;
+    // [TIMER-RESET] 탭을 이동하면 이전 화면(AI 자율연습 준비/답변, AI 면접 코스 답변)의 타이머가
+    // 화면 밖에서 계속 돌다가 의도치 않게 자동 제출/전환되는 일이 없도록 반드시 정지시킵니다.
+    clearInterval(prepInterval); clearInterval(ansInterval);
+    if (scheduleTimerInterval) { clearInterval(scheduleTimerInterval); scheduleTimerInterval = null; }
+    if (schedulePrepTimerInterval) { clearInterval(schedulePrepTimerInterval); schedulePrepTimerInterval = null; }
+    document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main section').forEach(s=>s.style.display='none');
+    document.getElementById('tab-'+btn.dataset.tab).style.display='block';
+    if(btn.dataset.tab==='practice') renderPracticeTab();
+    if(btn.dataset.tab==='history') renderHistory();
+    if(btn.dataset.tab==='schedule') loadSchedule();
+    if(btn.dataset.tab==='coaching') loadCoachingTab();
+  });
+});
+
+// ============================================================
+// [COACHING-TAB] 코칭 면접 코스 탭 — 읽기 전용 요약만 담당합니다. 실제 답변
+// 작성·제출·타이머는 아래 [TEAM-SCHEDULE] 로직(AI 면접 코스 탭)을 그대로 재사용하며,
+// 이 함수는 그 API(/api/interview/schedule-list)를 다시 호출해 deliveryMode만
+// 확인한 뒤, 코칭(실시간) 팀 소속이면 일정 요약을, 아니면 안내 카드를 보여줍니다.
+// [ADMIN-SAME-SCREEN] 관리자는 기본적으로 일반 회원과 똑같은 안내 화면을 보고, 아래
+// "수련생 화면 미리보기" 카드에서 코칭 팀을 고르면 이 탭 안에서 바로 그 팀의 일정
+// 요약 화면으로 전환됩니다(다른 탭으로 이동하지 않습니다).
+// ============================================================
+let coachingPreviewTeamId = null;
+let coachingPreviewTeamName = '';
+
+async function loadCoachingTab(){
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  const memberCard = document.getElementById('coachingMemberCard');
+  const infoCard = document.getElementById('coachingInfoCard');
+  const previewPickerCard = document.getElementById('coachingPreviewPickerCard');
+  const statusLabel = document.getElementById('coachingPreviewStatusLabel');
+  if (!memberCard || !infoCard) return;
+
+  if (isAdmin) {
+    if (previewPickerCard) { previewPickerCard.style.display = 'block'; loadCoachingPreviewTeamOptions(); }
+
+    if (!coachingPreviewTeamId) {
+      memberCard.style.display = 'none';
+      infoCard.style.display = 'block';
+      if (statusLabel) statusLabel.textContent = '현재 일반 회원과 동일한 안내 화면을 보고 있습니다.';
+      return;
+    }
+
+    let data;
+    try {
+      const res = await fetch('/api/interview/schedule-list', { method:'POST', headers: authHeaders(), body: JSON.stringify({ previewTeamId: coachingPreviewTeamId }) });
+      if (!res.ok) throw new Error('불러오지 못했습니다.');
+      data = await res.json();
+    } catch (e) {
+      memberCard.style.display = 'none';
+      infoCard.style.display = 'block';
+      if (statusLabel) statusLabel.textContent = '불러오지 못해 안내 화면을 표시합니다.';
+      return;
+    }
+
+    const isCoachingMember = data.deliveryMode === 'live';
+    memberCard.style.display = isCoachingMember ? 'block' : 'none';
+    infoCard.style.display = isCoachingMember ? 'none' : 'block';
+    if (statusLabel) {
+      statusLabel.textContent = isCoachingMember
+        ? `"${coachingPreviewTeamName}" 팀 수련생 화면을 미리보고 있습니다.`
+        : '선택한 팀이 코칭 팀이 아니어서 안내 화면을 표시합니다.';
+    }
+    if (isCoachingMember) renderCoachingScheduleRows(data.rows || []);
+    return;
+  }
+
+  if (previewPickerCard) previewPickerCard.style.display = 'none';
+
+  let data;
+  try {
+    const res = await fetch('/api/interview/schedule-list', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (!res.ok) throw new Error('불러오지 못했습니다.');
+    data = await res.json();
+  } catch (e) {
+    memberCard.style.display = 'none';
+    infoCard.style.display = 'block';
+    return;
+  }
+
+  const isCoachingMember = data.deliveryMode === 'live';
+  memberCard.style.display = isCoachingMember ? 'block' : 'none';
+  infoCard.style.display = isCoachingMember ? 'none' : 'block';
+
+  // [COACHING-FLAG] 팀 배정(delivery_mode='live')이 아직 없어도, 관리자가
+  // "회원 권한 관리"에서 코칭면접코스를 Premium으로 직접 승인했다면 "신청
+  // 안내" 버튼 대신 배정 대기 안내를 보여줍니다.
+  const applyBtn = document.getElementById('coachingApplyBtn');
+  const grantedNotice = document.getElementById('coachingGrantedNotice');
+  const showGrantedNotice = !isCoachingMember && !!data.coachingFlagPremium;
+  if (applyBtn) applyBtn.style.display = showGrantedNotice ? 'none' : 'inline-block';
+  if (grantedNotice) grantedNotice.style.display = showGrantedNotice ? 'block' : 'none';
+
+  if (!isCoachingMember) return;
+  renderCoachingScheduleRows(data.rows || []);
+}
+
+// [COACHING-TAB] 일정 목록 렌더링 — 실제 회원 화면과 관리자 미리보기 화면이 완전히
+// 같은 마크업을 쓰도록 공통 함수로 뺐습니다.
+// [COACHING-ROW-CLICK] "AI 면접 코스" 탭(loadSchedule)과 동일하게, 목록 자체는 읽기
+// 전용으로 보여주되 "🟢 공개중" 행을 직접 클릭했을 때만 그 문제의 답안 작성 화면을
+// #coachingAnswerCardsWrap에 띄웁니다. 예전에는 "AI 면접 코스 탭으로 이동" 버튼을
+// 따로 뒀는데, 그 탭이 관리자 설정으로 꺼져 있으면(코칭 전용 회원은 흔함) 버튼을
+// 눌러도 아무 반응이 없었고, 공개중인 항목이 여러 개면 어느 것에 대한 제출인지도
+// 알 수 없었습니다 — 행을 직접 클릭하는 방식으로 두 문제를 한 번에 해결합니다.
+let coachingScheduleRows = [];
+
+function renderCoachingScheduleRows(rows){
+  const listWrap = document.getElementById('coachingScheduleListWrap');
+  const cardsWrap = document.getElementById('coachingAnswerCardsWrap');
+  if (!listWrap) return;
+  coachingScheduleRows = rows || [];
+  if (cardsWrap) cardsWrap.innerHTML = '';
+  if (coachingScheduleRows.length === 0) {
+    listWrap.innerHTML = '<p class="muted">아직 등록된 일정이 없습니다. 담당자에게 문의해 주세요.</p>';
+    return;
+  }
+  listWrap.innerHTML = '';
+  coachingScheduleRows.forEach((r) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.cssText = 'justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid #edf2f7; border-radius:10px; margin-bottom:8px;';
+
+    const dateLabel = (r.orderNo != null) ? `${r.orderNo}번째` : (r.startDate === r.endDate ? r.startDate : `${r.startDate} ~ ${r.endDate}`);
+    const liveLine = r.liveSessionTime
+      ? `<br><span class="muted" style="font-size:var(--fs-caption);">🎥 실시간 세션: ${escapeHtml(r.liveSessionTime)}${r.liveMeetingLink ? ` · <a href="${escapeHtml(r.liveMeetingLink)}" target="_blank" rel="noopener">참여 링크</a>` : ''}</span>`
+      : '';
+    const left = document.createElement('div');
+    left.innerHTML = `<b>${escapeHtml(dateLabel)}</b> · ${escapeHtml(r.catLabel || '')}${liveLine}`;
+    row.appendChild(left);
+
+    const isOpenable = r.status === 'open' && !r.submitted && r.question;
+
+    const right = document.createElement('div');
+    if (r.status === 'upcoming') {
+      right.innerHTML = '<span class="muted">🔒 예정</span>';
+    } else if (r.status === 'preparing') {
+      right.innerHTML = '<span class="muted">🛠 문제 준비중</span>';
+    } else if (r.status === 'closed') {
+      right.innerHTML = r.submitted
+        ? '<span style="color:#2f855a;">✅ 제출 완료</span>'
+        : '<span style="color:#e53e3e;">⏱ 마감 (미제출)</span>';
+    } else {
+      right.innerHTML = r.submitted
+        ? '<span style="color:#2f855a;">✅ 제출 완료</span>'
+        : '<span style="color:var(--navy); font-weight:700;">🟢 공개중 · 답변하기 →</span>';
+    }
+    row.appendChild(right);
+
+    if (isOpenable) {
+      row.style.cursor = 'pointer';
+      row.addEventListener('mouseenter', () => { row.style.background = '#f7f9fc'; });
+      row.addEventListener('mouseleave', () => { row.style.background = ''; });
+      row.addEventListener('click', () => openCoachingScheduleAnswer(r));
+    }
+    listWrap.appendChild(row);
+  });
+
+  if (cardsWrap) {
+    const hasOpenable = coachingScheduleRows.some(r => r.status === 'open' && !r.submitted && r.question);
+    if (hasOpenable) {
+      const tip = document.createElement('p');
+      tip.className = 'muted';
+      tip.style.cssText = 'margin-top:14px;';
+      tip.textContent = '👆 위 목록에서 "🟢 공개중" 항목을 선택하면 답안 작성 화면이 나타납니다.';
+      cardsWrap.appendChild(tip);
+    }
+  }
+}
+
+// [COACHING-ROW-CLICK] 코칭 면접 코스 탭에서 "공개중" 항목을 직접 클릭했을 때만
+// 호출됩니다 — AI 면접 코스 탭의 openScheduleAnswer()와 동일한 패턴이지만, 제출 후
+// 새로고침 대상을 loadSchedule() 대신 loadCoachingTab()으로 넘겨서 이 탭 자체가
+// 다시 그려지도록 합니다.
+function openCoachingScheduleAnswer(row){
+  if (scheduleTimerInterval) { clearInterval(scheduleTimerInterval); scheduleTimerInterval = null; }
+  if (schedulePrepTimerInterval) { clearInterval(schedulePrepTimerInterval); schedulePrepTimerInterval = null; }
+  const cardsWrap = document.getElementById('coachingAnswerCardsWrap');
+  if (!cardsWrap) return;
+  cardsWrap.innerHTML = '';
+  if (row.cat === 'ethics' && coachingScheduleRows.some(r => r.cat === 'case' && r.status === 'open' && r.submitted)) {
+    const hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.marginBottom = '4px';
+    hint.textContent = '사례개념화 제출을 완료했습니다. 이어서 상담윤리 문제에 답변해 주세요.';
+    cardsWrap.appendChild(hint);
+  }
+  // [ADMIN-SAME-SCREEN] 관리자가 "수련생 화면 미리보기" 중이면(coachingPreviewTeamId 설정됨)
+  // AI 면접 코스 탭의 관리자 미리보기와 동일하게 제출 버튼을 비활성화합니다.
+  const isPreview = !!(currentUser && currentUser.isAdmin && coachingPreviewTeamId);
+  cardsWrap.appendChild(buildScheduleAnswerCard(row, isPreview, loadCoachingTab));
+  if (typeof cardsWrap.scrollIntoView === 'function') {
+    cardsWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// ============================================================
+// [TEAM-SCHEDULE] 수련 일정 (팀별 사례개념화·상담윤리 날짜 지정 문제)
+// ============================================================
+let scheduleRows = [];
+let scheduleTeamId = null;
+let scheduleTimerInterval = null;
+let schedulePrepTimerInterval = null;
+// [ADMIN-PREVIEW] 관리자가 "수련생 화면 미리보기" 중인 팀 id/이름 (미리보기 중이 아니면 null)
+let previewTeamId = null;
+let previewTeamName = '';
+
+async function loadSchedule(){
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  const dashboardWrap = document.getElementById('adminTrainingDashboardWrap');
+  const studentWrap = document.getElementById('scheduleStudentWrap');
+
+  // [ADMIN-TRAINING-DASHBOARD] 관리자는 기본적으로 전체 팀 현황 대시보드를 보고,
+  // "미리보기 시작"을 눌렀을 때만 특정 팀의 수련생 화면(아래 studentWrap)을 봅니다.
+  if (isAdmin && !previewTeamId) {
+    dashboardWrap.style.display = 'block';
+    studentWrap.style.display = 'none';
+    loadSchedulePreviewTeamOptions();
+    return;
+  }
+  dashboardWrap.style.display = 'none';
+  studentWrap.style.display = 'block';
+
+  // [LOCK-SCREEN-PARITY] AI 자율연습 탭과 동일하게, 미승인 일반 회원에게는 실제 팀
+  // 수련 과정 대신 승인 안내 카드를 보여줍니다. 관리자가 미리보기 중일 때는
+  // isAdmin이 true이므로 이 게이트를 건너뜁니다.
+  const scheduleApprovalCard = document.getElementById('scheduleApprovalRequiredCard');
+  const scheduleContentWrap = document.getElementById('scheduleContentWrap');
+  const scheduleAccess = getInterviewAccessStatus();
+  const scheduleApproved = scheduleAccess === 'premium' || scheduleAccess === 'admin';
+  if (!isAdmin && !scheduleApproved) {
+    if (scheduleApprovalCard) scheduleApprovalCard.style.display = 'block';
+    if (scheduleContentWrap) scheduleContentWrap.style.display = 'none';
+    return;
+  }
+  if (scheduleApprovalCard) scheduleApprovalCard.style.display = 'none';
+  if (scheduleContentWrap) scheduleContentWrap.style.display = 'block';
+
+  const previewBanner = document.getElementById('previewBanner');
+  if (previewTeamId) {
+    previewBanner.style.display = 'flex';
+    document.getElementById('previewTeamNameLabel').textContent = previewTeamName;
+  } else {
+    previewBanner.style.display = 'none';
+  }
+
+  const listWrap = document.getElementById('scheduleListWrap');
+  const noTeamMsg = document.getElementById('scheduleNoTeamMsg');
+  const cardsWrap = document.getElementById('scheduleAnswerCardsWrap');
+  listWrap.innerHTML = '<p class="muted">불러오는 중...</p>';
+  cardsWrap.innerHTML = '';
+  if (scheduleTimerInterval) { clearInterval(scheduleTimerInterval); scheduleTimerInterval = null; }
+  if (schedulePrepTimerInterval) { clearInterval(schedulePrepTimerInterval); schedulePrepTimerInterval = null; }
+
+  try {
+    const body = previewTeamId ? { previewTeamId } : {};
+    const res = await fetch('/api/interview/schedule-list', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    if (!res.ok) throw new Error('일정을 불러오지 못했습니다.');
+    const data = await res.json();
+    scheduleTeamId = data.teamId;
+    scheduleRows = data.rows || [];
+  } catch (e) {
+    listWrap.innerHTML = `<p class="muted">${e.message}</p>`;
+    return;
+  }
+
+  if (!scheduleTeamId) {
+    noTeamMsg.style.display = 'block';
+    listWrap.innerHTML = '';
+    return;
+  }
+  noTeamMsg.style.display = 'none';
+
+  if (scheduleRows.length === 0) {
+    listWrap.innerHTML = '<p class="muted">아직 등록된 수련 과정이 없습니다. 담당자에게 문의해 주세요.</p>';
+    return;
+  }
+
+  // [SCHEDULE-LIST-CARD-SEPARATION] 목록과 답안 작성 화면을 분리합니다 — 탭을 열면
+  // 먼저 전체 일정 목록만 보여주고, "공개중"인 항목을 사용자가 직접 클릭했을 때만
+  // 그 문제의 답안 작성 화면을 아래에 띄웁니다(목록과 답안이 동시에 보이지 않도록).
+  listWrap.innerHTML = '';
+  scheduleRows.forEach((r) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.cssText = 'justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid #edf2f7; border-radius:10px; margin-bottom:8px;';
+
+    const left = document.createElement('div');
+    // [COURSE-SHARED-ORDER] 순서 기반(공통 일정) 배정은 날짜가 없으므로(startDate=null)
+    // "N번째"로 표시하고, 날짜 기반(코호트) 배정은 기존처럼 공개 기간을 표시합니다.
+    const dateLabel = (r.orderNo != null)
+      ? `${r.orderNo}번째`
+      : (r.startDate === r.endDate ? r.startDate : `${r.startDate} ~ ${r.endDate}`);
+    // [STEP5-COACHING] 코칭(실시간) 팀은 정기 화상 세션 시간/링크를 함께 안내합니다.
+    const liveLine = r.liveSessionTime
+      ? `<br><span class="muted" style="font-size:var(--fs-caption);">🎥 실시간 세션: ${escapeHtml(r.liveSessionTime)}${r.liveMeetingLink ? ` · <a href="${escapeHtml(r.liveMeetingLink)}" target="_blank" rel="noopener">참여 링크</a>` : ''}</span>`
+      : '';
+    left.innerHTML = `<b>${dateLabel}</b> · ${r.catLabel || ''}${liveLine}`;
+    row.appendChild(left);
+
+    const isOpenable = r.status === 'open' && !r.submitted && r.question;
+
+    const right = document.createElement('div');
+    if (r.status === 'upcoming') {
+      right.innerHTML = '<span class="muted">🔒 예정</span>';
+    } else if (r.status === 'preparing') {
+      right.innerHTML = '<span class="muted">🛠 문제 준비중</span>';
+    } else if (r.status === 'closed') {
+      right.innerHTML = r.submitted
+        ? '<span style="color:#2f855a;">✅ 제출 완료</span>'
+        : '<span style="color:#e53e3e;">⏱ 마감 (미제출)</span>';
+    } else {
+      right.innerHTML = r.submitted
+        ? '<span style="color:#2f855a;">✅ 제출 완료</span>'
+        : '<span style="color:var(--navy); font-weight:700;">🟢 공개중 · 답변하기 →</span>';
+    }
+    row.appendChild(right);
+
+    if (isOpenable) {
+      row.style.cursor = 'pointer';
+      row.addEventListener('mouseenter', () => { row.style.background = '#f7f9fc'; });
+      row.addEventListener('mouseleave', () => { row.style.background = ''; });
+      row.addEventListener('click', () => openScheduleAnswer(r));
+    }
+    listWrap.appendChild(row);
+  });
+
+  cardsWrap.innerHTML = '';
+  const hasOpenable = scheduleRows.some(r => r.status === 'open' && !r.submitted && r.question);
+  if (hasOpenable) {
+    const tip = document.createElement('p');
+    tip.className = 'muted';
+    tip.style.cssText = 'margin-top:14px;';
+    tip.textContent = '👆 위 목록에서 "🟢 공개중" 항목을 선택하면 답안 작성 화면이 나타납니다.';
+    cardsWrap.appendChild(tip);
+  }
+}
+
+// 목록에서 "공개중" 항목을 클릭했을 때만 호출됩니다 — 목록 화면과 답안 작성 화면이
+// 동시에 보이지 않도록, 카드는 여기서만 렌더링합니다.
+function openScheduleAnswer(row){
+  // [TIMER-RESET] 다른 문제 카드를 이미 열어둔 채 목록에서 다른 항목을 클릭한 경우,
+  // 이전 카드의 타이머가 백그라운드에서 계속 돌며 엉뚱한 답변을 자동 제출하지 않도록
+  // 새 카드를 만들기 전에 반드시 정지시킵니다.
+  if (scheduleTimerInterval) { clearInterval(scheduleTimerInterval); scheduleTimerInterval = null; }
+  if (schedulePrepTimerInterval) { clearInterval(schedulePrepTimerInterval); schedulePrepTimerInterval = null; }
+  const cardsWrap = document.getElementById('scheduleAnswerCardsWrap');
+  cardsWrap.innerHTML = '';
+  if (row.cat === 'ethics' && scheduleRows.some(r => r.cat === 'case' && r.status === 'open' && r.submitted)) {
+    const hint = document.createElement('p');
+    hint.className = 'muted';
+    hint.style.marginBottom = '4px';
+    hint.textContent = '사례개념화 제출을 완료했습니다. 이어서 상담윤리 문제에 답변해 주세요.';
+    cardsWrap.appendChild(hint);
+  }
+  cardsWrap.appendChild(buildScheduleAnswerCard(row, !!previewTeamId));
+  if (typeof cardsWrap.scrollIntoView === 'function') {
+    cardsWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// [ADMIN-TRAINING-DASHBOARD] 관리자 전용 현황 대시보드·피드백 큐·질문은행 전체
+// 열람 로직은 admin.html("📊 면접 코스 현황" 탭)로 옮겼습니다. 팀 미리보기는
+// admin.html에서 interview.html?previewTeamId=...&previewTeamName=...로 링크해
+// 들어오며, 아래에서 그 파라미터를 읽어 자동으로 미리보기를 시작합니다.
+window.exitTeamPreview = function(){
+  previewTeamId = null;
+  previewTeamName = '';
+  loadSchedule();
+};
+
+// [SCHEDULE-PREVIEW-PICKER] 관리자가 "AI 면접 코스" 탭에 들어왔을 때(미리보기 중이 아닐 때)
+// 보여주는 팀 선택 카드 — practicePreviewPickerCard와 같은 패턴입니다. 팀 목록은 admin.html의
+// "📊 면접 코스 현황" 탭과 같은 API를 재사용합니다.
+async function loadSchedulePreviewTeamOptions(){
+  const sel = document.getElementById('schedulePreviewTeamSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">불러오는 중...</option>';
+  try {
+    const res = await fetch('/api/interview/admin-training-overview', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '팀 목록을 불러오지 못했습니다.');
+    // [PREVIEW-SPLIT] 이 탭(AI 면접 코스)의 미리보기 목록에는 코칭(실시간) 팀을
+    // 넣지 않습니다 — 코칭 팀은 "코칭 면접 코스" 탭의 자체 미리보기 목록에서 선택합니다.
+    const teams = (data.teams || []).filter(t => t.deliveryMode !== 'live');
+    sel.innerHTML = teams.length
+      ? '<option value="">팀을 선택하세요</option>' + teams.map(t => `<option value="${t.teamId}">${escapeHtml(t.teamName)}</option>`).join('')
+      : '<option value="">활성화된 팀이 없습니다</option>';
+  } catch (e) {
+    sel.innerHTML = '<option value="">불러오지 못했습니다</option>';
+  }
+}
+
+window.startSchedulePreviewFromPicker = function(){
+  const sel = document.getElementById('schedulePreviewTeamSelect');
+  if (!sel || !sel.value) return;
+  previewTeamId = sel.value;
+  previewTeamName = sel.options[sel.selectedIndex].textContent;
+  loadSchedule();
+};
+
+// [PREVIEW-SPLIT] "코칭 면접 코스" 탭 전용 미리보기 선택 카드 — 위 schedule 탭용
+// 목록과 같은 API를 쓰지만, 코칭(실시간) 팀만 골라서 보여줍니다.
+async function loadCoachingPreviewTeamOptions(){
+  const sel = document.getElementById('coachingPreviewTeamSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">불러오는 중...</option>';
+  try {
+    const res = await fetch('/api/interview/admin-training-overview', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '팀 목록을 불러오지 못했습니다.');
+    const teams = (data.teams || []).filter(t => t.deliveryMode === 'live');
+    sel.innerHTML = teams.length
+      ? '<option value="">팀을 선택하세요 (안내 화면)</option>' + teams.map(t => `<option value="${t.teamId}">${escapeHtml(t.teamName)}</option>`).join('')
+      : '<option value="">활성화된 코칭 팀이 없습니다</option>';
+  } catch (e) {
+    sel.innerHTML = '<option value="">불러오지 못했습니다</option>';
+    return;
+  }
+  // [ADMIN-SAME-SCREEN] 다시 그릴 때도 현재 미리보고 있는 팀이 선택된 상태로 보이게 합니다.
+  if (coachingPreviewTeamId) sel.value = coachingPreviewTeamId;
+}
+
+// 선택한 코칭 팀의 일정 요약 화면으로 이 탭 안에서 바로 전환합니다 — 다른 탭으로
+// 이동하지 않고, coachingPreviewTeamId를 기준으로 loadCoachingTab()이 다시 렌더링합니다.
+window.startCoachingPreviewFromPicker = function(){
+  const sel = document.getElementById('coachingPreviewTeamSelect');
+  if (!sel) return;
+  coachingPreviewTeamId = sel.value || null;
+  coachingPreviewTeamName = sel.value ? sel.options[sel.selectedIndex].textContent : '';
+  loadCoachingTab();
+};
+
+// isPreview가 true면(관리자가 "수련생 화면 미리보기" 중) 실제로 제출되지 않고
+// 안내만 표시합니다 — 관리자 본인은 어느 팀에도 소속되어 있지 않아 실제
+// 제출은 어차피 서버에서 거부되므로, 애초에 헷갈리지 않게 막아둡니다.
+// [COACHING-ROW-CLICK] onSubmitted: 제출 성공 후 목록을 다시 불러올 함수 — AI 면접
+// 코스 탭에서 호출할 때는 생략하면 기존과 동일하게 loadSchedule()을 쓰고, 코칭 면접
+// 코스 탭(openCoachingScheduleAnswer)에서는 loadCoachingTab()을 넘겨서 그 탭 자체가
+// 다시 그려지게 합니다.
+function buildScheduleAnswerCard(row, isPreview, onSubmitted){
+  const refreshAfterSubmit = onSubmitted || loadSchedule;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'margin-top:20px;';
+
+  const heading = document.createElement('h2');
+  heading.textContent = `지금 공개중인 ${row.catLabel} 문제` + (row.question.topic ? ` · ${row.question.topic}` : '');
+  card.appendChild(heading);
+
+  // [PRACTICE-TIME-ADMIN-ONLY] 준비/답변 제한시간은 관리자가 설정한 전체 공통 값을
+  // 그대로 사용합니다(AI 자율연습과 동일) — 수련생은 이 시간을 수정할 수 없습니다.
+  const prepTimeLimitSec = row.prepTimeLimitSec ?? (row.cat === 'case' ? 900 : row.cat === 'ethics' ? 30 : 20);
+  const timeLimitSec = row.timeLimitSec ?? (row.cat === 'case' ? 180 : row.cat === 'ethics' ? 180 : 360);
+
+  // [TEAM-SCHEDULE-PREP-PHASE] AI 자율연습과 동일하게, 문제를 먼저 준비 시간 동안 보여준
+  // 뒤 답변 단계로 넘어갑니다. 준비 단계에서는 제출 관련 UI를 숨겨둡니다.
+  const prepSection = document.createElement('div');
+  const answerSection = document.createElement('div');
+  answerSection.style.display = 'none';
+  card.appendChild(prepSection);
+  card.appendChild(answerSection);
+
+  const prepTimerBox = document.createElement('div');
+  prepTimerBox.className = 'timerbox';
+  const prepTimerLabel = document.createElement('span');
+  prepTimerLabel.textContent = '준비 시간';
+  const prepTimerEl = document.createElement('span');
+  prepTimerEl.className = 'timer';
+  prepTimerBox.appendChild(prepTimerLabel);
+  prepTimerBox.appendChild(prepTimerEl);
+  prepSection.appendChild(prepTimerBox);
+  const prepBarWrap = document.createElement('div');
+  prepBarWrap.className = 'barwrap';
+  const prepBar = document.createElement('div');
+  prepBar.className = 'bar';
+  prepBarWrap.appendChild(prepBar);
+  prepSection.appendChild(prepBarWrap);
+  const prepQText = document.createElement('div');
+  prepQText.className = 'qtext';
+  prepQText.textContent = row.question.q;
+  prepSection.appendChild(prepQText);
+  const prepFrameHint = document.createElement('div');
+  prepFrameHint.className = 'framebox';
+  prepFrameHint.textContent = FRAME_HINT_MAP[row.cat] || '';
+  prepSection.appendChild(prepFrameHint);
+  const skipPrepBtn = document.createElement('button');
+  skipPrepBtn.className = 'secondary';
+  skipPrepBtn.style.marginTop = '10px';
+  skipPrepBtn.textContent = '준비 건너뛰고 바로 답변하기';
+  prepSection.appendChild(skipPrepBtn);
+
+  function updatePrepDisplay(r, t){
+    prepTimerEl.textContent = formatTime(r);
+    prepBar.style.width = Math.max(0, (1 - r/t) * 100) + '%';
+  }
+  function goToScheduleAnswerPhase(){
+    if (schedulePrepTimerInterval) { clearInterval(schedulePrepTimerInterval); schedulePrepTimerInterval = null; }
+    prepSection.style.display = 'none';
+    answerSection.style.display = 'block';
+    startScheduleAnswerTimer();
+  }
+  skipPrepBtn.addEventListener('click', goToScheduleAnswerPhase);
+
+  let prepRemaining = prepTimeLimitSec;
+  const prepTotal = prepTimeLimitSec || 1;
+  updatePrepDisplay(prepRemaining, prepTotal);
+  // [TEAM-SCHEDULE-PREP-PHASE] 준비시간이 0으로 설정된 경우, 아래에서 답변 단계 관련
+  // 요소(timerEl/bar 등)가 모두 만들어진 뒤 함수 맨 끝에서 바로 답변 단계로 넘어갑니다
+  // (여기서 즉시 호출하면 아직 선언되지 않은 const를 참조해 오류가 납니다).
+  let skipPrepImmediately = false;
+  if (prepTimeLimitSec > 0) {
+    schedulePrepTimerInterval = setInterval(()=>{
+      prepRemaining--;
+      updatePrepDisplay(Math.max(0, prepRemaining), prepTotal);
+      if (prepRemaining <= 0) goToScheduleAnswerPhase();
+    }, 1000);
+  } else {
+    skipPrepImmediately = true;
+  }
+
+  const timerBox = document.createElement('div');
+  timerBox.className = 'timerbox';
+  const timerLabel = document.createElement('span');
+  timerLabel.textContent = '답변 작성 중 (제한시간)';
+  const timerEl = document.createElement('span');
+  timerEl.className = 'timer';
+  timerBox.appendChild(timerLabel);
+  timerBox.appendChild(timerEl);
+  answerSection.appendChild(timerBox);
+  const barWrap = document.createElement('div');
+  barWrap.className = 'barwrap';
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  barWrap.appendChild(bar);
+  answerSection.appendChild(barWrap);
+
+  const qText = document.createElement('div');
+  qText.className = 'qtext';
+  qText.textContent = row.question.q;
+  answerSection.appendChild(qText);
+
+  let theorySel = null;
+  if (row.cat === 'case' && Array.isArray(row.question.theories) && row.question.theories.length > 0) {
+    const theoryWrap = document.createElement('div');
+    theoryWrap.style.cssText = 'margin:12px 0;';
+    const title = document.createElement('label');
+    title.style.cssText = 'display:block; font-weight:bold; font-size:var(--fs-emphasis); margin-bottom:4px; color:var(--navy);';
+    title.textContent = '상담이론 선택';
+    theoryWrap.appendChild(title);
+    const hint = document.createElement('div');
+    hint.className = 'muted';
+    hint.style.marginBottom = '4px';
+    hint.textContent = '이 사례를 분석할 상담이론을 선택하세요';
+    theoryWrap.appendChild(hint);
+    theorySel = document.createElement('select');
+    row.question.theories.forEach(t=>{
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      theorySel.appendChild(opt);
+    });
+    theoryWrap.appendChild(theorySel);
+    answerSection.appendChild(theoryWrap);
+  }
+
+  const frameHint = document.createElement('div');
+  frameHint.className = 'framebox';
+  frameHint.textContent = FRAME_HINT_MAP[row.cat] || '';
+  answerSection.appendChild(frameHint);
+
+  const fieldsContainer = document.createElement('div');
+  const fieldEls = [];
+
+  function renderScheduleFields(){
+    fieldsContainer.innerHTML = '';
+    fieldEls.length = 0;
+
+    if (getAnswerMode(row.cat, row.question, 'team') === 'freeform') {
+      const catLabelForMode = row.cat === 'ethics' ? '상담윤리' : row.cat === 'supervision' ? '수퍼비전' : '사례개념화';
+      const label = catLabelForMode + ' (통합 서술)';
+      const block = document.createElement('div');
+      block.className = 'field-block';
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      const ta = document.createElement('textarea');
+      ta.placeholder = row.cat === 'ethics'
+        ? '위 프레임(①~④)의 흐름을 참고하여, 하나의 연결된 글로 윤리적 의사결정 과정을 서술하세요.'
+        : row.cat === 'supervision'
+        ? '질문에 대해 자유롭게, 실제 면접에서 말하듯이 서술하세요.'
+        : '위 프레임(①~⑧)의 흐름을 참고하여, 하나의 연결된 글로 사례개념화를 서술하세요.';
+      ta.style.minHeight = '260px';
+      ta.dataset.key = 'full';
+      block.appendChild(lbl);
+      block.appendChild(ta);
+      fieldsContainer.appendChild(block);
+      fieldEls.push({key:'full', label, el:ta});
+      return;
+    }
+
+    const fields = FIELDS_MAP[row.cat] || [];
+    fields.forEach(f=>{
+      const block = document.createElement('div');
+      block.className = 'field-block';
+      const lbl = document.createElement('label');
+      lbl.textContent = f.label;
+      const ta = document.createElement('textarea');
+      ta.placeholder = f.placeholder;
+      ta.dataset.key = f.key;
+      block.appendChild(lbl);
+      block.appendChild(ta);
+      fieldsContainer.appendChild(block);
+      fieldEls.push({key:f.key, label:f.label, el:ta});
+    });
+  }
+
+  // [ANSWER-MODE] 사례개념화·상담윤리 모두 구조형/통합형을 토글할 수 있습니다.
+  // 전체 기본값(admin.html)이나 이 문제 자체에 지정된 개별 설정으로 한쪽 모드가
+  // 꺼져 있으면(카테고리/문제당 최소 하나는 항상 켜져 있음) 토글 자체를 숨기고
+  // 허용된 모드로 고정해서 보여줍니다.
+  const allowedModes = getAllowedAnswerModes(row.cat, row.question, 'team');
+  if (allowedModes.structured && allowedModes.freeform) {
+    const modeToggle = document.createElement('div');
+    modeToggle.className = 'mode-toggle';
+    const structBtn = document.createElement('button');
+    structBtn.type = 'button';
+    structBtn.textContent = `🧩 구조형 (${ANSWER_MODE_STEP_LABEL[row.cat] || ''}로 나눠 작성)`;
+    const freeBtn = document.createElement('button');
+    freeBtn.type = 'button';
+    freeBtn.textContent = '✍️ 통합형 (한 편의 글로 서술)';
+    function refreshModeBtns(){
+      const mode = getAnswerMode(row.cat, row.question, 'team');
+      structBtn.classList.toggle('active', mode === 'structured');
+      freeBtn.classList.toggle('active', mode === 'freeform');
+    }
+    structBtn.addEventListener('click', ()=>{ setAnswerMode(row.cat, 'structured'); refreshModeBtns(); renderScheduleFields(); });
+    freeBtn.addEventListener('click', ()=>{ setAnswerMode(row.cat, 'freeform'); refreshModeBtns(); renderScheduleFields(); });
+    refreshModeBtns();
+    modeToggle.appendChild(structBtn);
+    modeToggle.appendChild(freeBtn);
+    answerSection.appendChild(modeToggle);
+  }
+
+  renderScheduleFields();
+  answerSection.appendChild(fieldsContainer);
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'primary';
+  submitBtn.style.marginTop = '14px';
+  submitBtn.textContent = isPreview ? '제출하기 (미리보기 — 비활성)' : '제출하기';
+  if (isPreview) submitBtn.disabled = true;
+  answerSection.appendChild(submitBtn);
+
+  const notice = document.createElement('p');
+  notice.className = 'muted';
+  notice.style.cssText = 'margin-top:8px; font-size:var(--fs-label);';
+  notice.textContent = isPreview
+    ? '👀 관리자 미리보기 모드입니다 — 수련생 화면과 동일하게 보이지만 실제로 제출되지 않습니다.'
+    : '제한시간이 끝나면 작성된 내용 그대로 자동 제출되며, 제출 후에는 수정하거나 다시 제출할 수 없습니다.';
+  answerSection.appendChild(notice);
+
+  let autoSubmitting = false;
+
+  function updateTimer(remaining){
+    timerEl.textContent = formatTime(remaining);
+    timerEl.classList.toggle('warn', remaining<=30 && remaining>10);
+    timerEl.classList.toggle('danger', remaining<=10);
+    bar.style.width = Math.max(0, (1 - remaining/timeLimitSec) * 100) + '%';
+  }
+
+  let remaining = timeLimitSec;
+  function startScheduleAnswerTimer(){
+    updateTimer(remaining);
+    // [ADMIN-PREVIEW] 미리보기 모드에서는 카운트다운/자동제출을 돌리지 않습니다 —
+    // 관리자가 화면을 확인하는 동안 시간이 다 돼서 자동 제출 시도가 일어나면 안 되니까요.
+    if (!isPreview) {
+      scheduleTimerInterval = setInterval(()=>{
+        remaining--;
+        updateTimer(Math.max(0, remaining));
+        if (remaining<=0){
+          clearInterval(scheduleTimerInterval);
+          if (!autoSubmitting) doSubmit(true);
+        }
+      }, 1000);
+    }
+  }
+
+  async function doSubmit(isAuto){
+    if (autoSubmitting) return;
+    const fieldsData = fieldEls.map(f=>({key:f.key, label:f.label, value:f.el.value.trim()}));
+    if (!isAuto && fieldsData.every(f=>!f.value)) {
+      alert('답변을 작성해 주세요.');
+      return;
+    }
+    autoSubmitting = true;
+    clearInterval(scheduleTimerInterval);
+    const theory = theorySel ? theorySel.value : null;
+
+    submitBtn.disabled = true; submitBtn.textContent = isAuto ? '시간 종료 - 자동 제출 중...' : '제출 중...';
+    try {
+      const res = await fetch('/api/interview/schedule-submit', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ scheduleId: row.id, fields: fieldsData, theory })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      alert(isAuto ? '제한시간이 종료되어 자동 제출되었습니다.' : '제출되었습니다.');
+      await refreshAfterSubmit();
+    } catch (e) {
+      alert('제출 실패: ' + e.message);
+      autoSubmitting = false;
+      submitBtn.disabled = false; submitBtn.textContent = '제출하기';
+    }
+  }
+
+  submitBtn.addEventListener('click', () => doSubmit(false));
+
+  if (skipPrepImmediately) goToScheduleAnswerPhase();
+
+  return card;
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+let session = null; // {questions:[], idx, answers:[], prepSec, ansSec}
+let currentFieldEls = [];
+
+document.getElementById('startBtn').addEventListener('click', startSession);
+
+// [MERGED-PRACTICE-FLOW] AI 자율연습은 카테고리/문항 수를 고르지 않고, 사례개념화 1개 +
+// 상담윤리 1개 + (1급 소속이면) 수퍼비전 1개를 각각의 문제 풀에서 무작위로 뽑아 한 번의
+// "연습 시작"으로 이어서 진행합니다(사례개념화 → 상담윤리 → 수퍼비전 순서). 이미 오늘 완료한
+// 영역은 건너뛰어, 하루 중 일부만 완료하고 나왔더라도 다시 시작하면 남은 영역만 이어집니다.
+// 한쪽 풀에 공개된 문제가 없어도 그 영역만 건너뛰고 있는 만큼만 출제합니다.
+// [MODEL-ANSWER-REQUIRED] AI 자율연습은 모범답안이 등록된 문제 중에서만 무작위로 뽑습니다
+// (모범답안이 없으면 나중에 AI 피드백을 받을 수 없기 때문 — bank API의 hasModelAnswer 참고).
+function pickCombinedQuestions(){
+  const questions = [];
+  const skipDailyCheck = isAdminPracticePreviewing();
+  ['case', 'ethics'].forEach(cat=>{
+    if (!skipDailyCheck && practiceDailyStatus[cat + 'DoneToday']) return;
+    const pool = QUESTIONS.filter(q=>q.cat===cat && q.hasModelAnswer);
+    if (pool.length === 0) return;
+    questions.push(pool[Math.floor(Math.random() * pool.length)]);
+  });
+  // [SUPERVISION-GRADE-GATE] 수퍼비전은 1급(또는 1급 미리보기 중인 관리자)에게만, 그리고
+  // 아직 오늘 완료하지 않았을 때만 세 번째 단계로 합류합니다.
+  if (isSupervisionEligible() && (skipDailyCheck || !practiceDailyStatus.supervisionDoneToday)) {
+    const pool = QUESTIONS.filter(q => q.cat === 'supervision' && q.hasModelAnswer);
+    if (pool.length > 0) questions.push(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  return questions;
+}
+
+function startSession(){
+  // [FREE-TRIAL-DEFAULT-CASE] AI 자율연습은 Free/Expired 회원도 관리자가 지정한
+  // 기본 사례로 체험할 수 있어야 하므로, 여기서 premium/admin만 통과시키던 예전
+  // 게이트는 제거했습니다(실제 문제 제한은 서버의 restrictToDefaultCase가 이미
+  // 처리하고, 사용 횟수 상한은 아래 daily-limit 체크 및 서버 저장 시점에서
+  // 처리됩니다).
+  // [PRACTICE-DAILY-LIMIT] 버튼이 비활성화되어 있는 게 정상 경로지만, 자정을 걸쳐 탭을
+  // 켜둔 채로 뒀다가 상태가 갱신되기 전에 클릭하는 경우 등을 대비한 방어 체크입니다.
+  // [ADMIN-PRACTICE-PREVIEW] 미리보기 중에는 실제 이용 현황과 무관하게 항상 시작할 수 있습니다.
+  if (!isAdminPracticePreviewing() && allPracticeAreasDoneToday()){
+    alert(isSupervisionEligible()
+      ? '오늘은 이미 사례개념화·상담윤리·수퍼비전 AI 자율연습을 완료했습니다. 내일 다시 이용해 주세요.'
+      : '오늘은 이미 사례개념화·상담윤리 AI 자율연습을 완료했습니다. 내일 다시 이용해 주세요.');
+    return;
+  }
+
+  // [PRACTICE-TIME-ADMIN-ONLY] 사례개념화·상담윤리·수퍼비전 시간 모두 더 이상 수련생이
+  // 조정할 수 없고 관리자가 설정한 featureFlags 값을 그대로 씁니다.
+  const prepSecByCat = {
+    case:   featureFlags.practicePrepSecCase   || 900,
+    ethics: featureFlags.practicePrepSecEthics || 30,
+    supervision: featureFlags.practicePrepSecSupervision || SUPERVISION_PREP_SEC
+  };
+  const ansSecByCat = {
+    case:   featureFlags.practiceAnsSecCase   || 180,
+    ethics: featureFlags.practiceAnsSecEthics || 180,
+    supervision: featureFlags.practiceAnsSecSupervision || SUPERVISION_ANS_SEC
+  };
+
+  const questions = pickCombinedQuestions();
+  if(questions.length===0){ alert('오늘 진행할 수 있는 연습이 없습니다. 담당자에게 문의해 주세요.'); return; }
+
+  const grade = effectivePracticeGrade() || '2';
+
+  session = {
+    grade, questions, idx:0, answers:[], prepSecByCat, ansSecByCat, isPreview: isAdminPracticePreviewing()
+  };
+
+  document.getElementById('setupCard').style.display='none';
+  document.getElementById('summaryCard').style.display='none';
+  document.getElementById('sessionCard').style.display='block';
+  renderDots();
+  startQuestion();
+}
+
+function renderDots(){
+  const wrap = document.getElementById('progressDots');
+  wrap.innerHTML='';
+  session.questions.forEach((q,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (i<session.idx?' done':'') + (i===session.idx?' current':'');
+    wrap.appendChild(d);
+  });
+}
+
+let prepInterval, ansInterval;
+
+function startQuestion(){
+  clearInterval(prepInterval); clearInterval(ansInterval);
+  const q = session.questions[session.idx];
+  document.getElementById('catBadge').textContent = q.catLabel + (q.seqNo ? ` #${q.seqNo}` : '') + (q.topic ? ` · ${q.topic}` : '');
+  document.getElementById('catBadge').className = 'pill' + (q.cat==='ethics' ? ' ethics' : '');
+  document.getElementById('qIndexLabel').textContent = `문항 ${session.idx+1} / ${session.questions.length}`;
+  document.getElementById('prepPhase').style.display='block';
+  document.getElementById('answerPhase').style.display='none';
+  document.getElementById('reviewPhase').style.display='none';
+  document.getElementById('prepQuestion').textContent = q.q;
+  document.getElementById('ansQuestion').textContent = q.q;
+  document.getElementById('ansFrameHint').textContent = FRAME_HINT_MAP[q.cat] || '';
+  renderAnswerFields(q.cat);
+  renderTheorySelect(q);
+  renderDots();
+
+  const prepSec = session.prepSecByCat[q.cat] ?? 30;
+  let remaining = prepSec;
+  const prepTimerEl = document.getElementById('prepTimer');
+  const prepBar = document.getElementById('prepBar');
+  const total = prepSec || 1;
+  updatePrepDisplay(remaining, total);
+
+  if(prepSec<=0){ goToAnswerPhase(); return; }
+
+  prepInterval = setInterval(()=>{
+    remaining--;
+    updatePrepDisplay(remaining, total);
+    if(remaining<=0){ clearInterval(prepInterval); goToAnswerPhase(); }
+  },1000);
+
+  function updatePrepDisplay(r, t){
+    prepTimerEl.textContent = formatTime(r);
+    prepBar.style.width = Math.max(0,(1-r/t)*100) + '%';
+  }
+}
+
+// [ANSWER-MODE] 사례개념화·상담윤리 모두 "구조형(단계별로 나눠 작성)"과 "통합형(한 편의
+// 글로 서술)" 두 모드를 토글할 수 있습니다. 선택한 모드는 카테고리별로 localStorage에
+// 기억되어 다음 연습에도 유지됩니다. 관리자는 admin.html에서 카테고리별·AI자율연습(practice)
+// /AI면접코스(team)별로 어떤 모드를 전체 기본값으로 허용할지 제한할 수 있고(한쪽을 끄면
+// 최소 하나는 항상 켜져 있어야 함), 허용된 모드가 하나뿐이면 수련생 화면에는 토글 없이
+// 그 모드로 고정되어 보입니다.
+// [ANSWER-MODE-QUESTION-OVERRIDE] 이 전체 기본값은 문제(사례) 하나하나에서(그리고 팀
+// 수련 과정은 배정 단위로 한 번 더) 다시 덮어쓸 수 있습니다 — question.modeStructured/
+// modeFreeform이 null이 아니면 전체 기본값보다 우선합니다.
+const ANSWER_MODE_KEYS = { case: 'caseAnswerMode', ethics: 'ethicsAnswerMode' };
+const ANSWER_MODE_STEP_LABEL = { case: '8단계', ethics: '4단계' };
+const ANSWER_MODE_FLAG_KEYS = {
+  practice: {
+    case:   { structured: 'modeCasePracticeStructured',   freeform: 'modeCasePracticeFreeform' },
+    ethics: { structured: 'modeEthicsPracticeStructured', freeform: 'modeEthicsPracticeFreeform' },
+  },
+  team: {
+    case:   { structured: 'modeCaseTeamStructured',   freeform: 'modeCaseTeamFreeform' },
+    ethics: { structured: 'modeEthicsTeamStructured', freeform: 'modeEthicsTeamFreeform' },
+  },
+};
+function getAllowedAnswerModes(cat, question, scope){
+  // [SUPERVISION-PHASE2] 수퍼비전은 8단계/4단계 같은 구조형 프레임이 없으므로
+  // 항상 통합형(자유서술)만 허용합니다 — 관리자 설정과 무관하게 고정.
+  if (cat === 'supervision') return { structured: false, freeform: true };
+  const scopeKeys = ANSWER_MODE_FLAG_KEYS[scope] || ANSWER_MODE_FLAG_KEYS.practice;
+  const k = scopeKeys[cat] || scopeKeys.case;
+  const qStructured = question ? question.modeStructured : null;
+  const qFreeform = question ? question.modeFreeform : null;
+  const structured = (qStructured !== null && qStructured !== undefined)
+    ? !!qStructured
+    : featureFlags[k.structured] !== false;
+  const freeform = (qFreeform !== null && qFreeform !== undefined)
+    ? !!qFreeform
+    : featureFlags[k.freeform] !== false;
+  if (!structured && !freeform) return { structured: true, freeform: false }; // 안전장치
+  return { structured, freeform };
+}
+function getAnswerMode(cat, question, scope){
+  const allowed = getAllowedAnswerModes(cat, question, scope);
+  const key = ANSWER_MODE_KEYS[cat] || ANSWER_MODE_KEYS.case;
+  const stored = localStorage.getItem(key) === 'freeform' ? 'freeform' : 'structured';
+  if (allowed[stored]) return stored;
+  return allowed.structured ? 'structured' : 'freeform';
+}
+function setAnswerMode(cat, mode){
+  const key = ANSWER_MODE_KEYS[cat] || ANSWER_MODE_KEYS.case;
+  localStorage.setItem(key, mode);
+}
+
+// AI 자율연습 화면(답변 단계) 전용 토글 UI 갱신 — 이 화면은 항상 AI 자율연습(practice) 문제만
+// 다루므로 scope는 고정입니다. 허용된 모드가 하나뿐이면 토글을 숨깁니다.
+function updateCaseModeToggleUI(cat, mode, question){
+  const toggleWrap = document.getElementById('caseModeToggle');
+  const structBtn = document.getElementById('caseModeStructuredBtn');
+  const freeBtn = document.getElementById('caseModeFreeformBtn');
+  if(!toggleWrap || !structBtn || !freeBtn) return;
+  const allowed = getAllowedAnswerModes(cat, question, 'practice');
+  toggleWrap.style.display = (allowed.structured && allowed.freeform) ? 'flex' : 'none';
+  structBtn.textContent = `🧩 구조형 (${ANSWER_MODE_STEP_LABEL[cat] || ''}로 나눠 작성)`;
+  structBtn.classList.toggle('active', mode === 'structured');
+  freeBtn.classList.toggle('active', mode === 'freeform');
+}
+// AI 자율연습 화면 토글 버튼의 onclick 핸들러 (HTML에서 호출)
+function onCaseModeToggleClick(mode){
+  if (!session || !session.questions || !session.questions[session.idx]) return;
+  const cat = session.questions[session.idx].cat;
+  setAnswerMode(cat, mode);
+  renderAnswerFields(cat);
+}
+
+function renderAnswerFields(cat){
+  const container = document.getElementById('ansFieldsContainer');
+  container.innerHTML = '';
+  currentFieldEls = [];
+
+  const currentQ = (session && session.questions) ? session.questions[session.idx] : null;
+  const mode = getAnswerMode(cat, currentQ, 'practice');
+  updateCaseModeToggleUI(cat, mode, currentQ);
+
+  if (mode === 'freeform') {
+    const catLabelForMode = cat === 'ethics' ? '상담윤리' : cat === 'supervision' ? '수퍼비전' : '사례개념화';
+    const label = catLabelForMode + ' (통합 서술)';
+    const block = document.createElement('div');
+    block.className = 'field-block';
+    const lbl = document.createElement('label');
+    lbl.textContent = label;
+    const ta = document.createElement('textarea');
+    ta.placeholder = cat === 'ethics'
+      ? '위 프레임(①~④)의 흐름을 참고하여, 하나의 연결된 글로 윤리적 의사결정 과정을 서술하세요.'
+      : cat === 'supervision'
+      ? '질문에 대해 자유롭게, 실제 면접에서 말하듯이 서술하세요.'
+      : '위 프레임(①~⑧)의 흐름을 참고하여, 하나의 연결된 글로 사례개념화를 서술하세요.';
+    ta.style.minHeight = '260px';
+    ta.dataset.key = 'full';
+    block.appendChild(lbl);
+    block.appendChild(ta);
+    container.appendChild(block);
+    currentFieldEls.push({key:'full', label, el:ta});
+    return;
+  }
+
+  const fields = FIELDS_MAP[cat] || [];
+  fields.forEach(f=>{
+    const block = document.createElement('div');
+    block.className = 'field-block';
+    const lbl = document.createElement('label');
+    lbl.textContent = f.label;
+    const ta = document.createElement('textarea');
+    ta.placeholder = f.placeholder;
+    ta.dataset.key = f.key;
+    block.appendChild(lbl);
+    block.appendChild(ta);
+    container.appendChild(block);
+    currentFieldEls.push({key:f.key, label:f.label, el:ta});
+  });
+}
+
+// [AI-FEEDBACK] 사례개념화 문제에 등록된 상담이론이 있으면 선택 드롭다운을 보여줍니다.
+// (해당 문제에 아직 모범답안이 없는 이론은 선택지에 없습니다 — bank API가 이론
+// "이름"만 내려주며, 없는 문제는 theories가 비어 있어 선택창 자체가 숨겨집니다.)
+function renderTheorySelect(q){
+  const wrap = document.getElementById('theorySelectWrap');
+  const sel = document.getElementById('theorySelect');
+  sel.innerHTML = '';
+  if (q.cat === 'case' && Array.isArray(q.theories) && q.theories.length > 0){
+    q.theories.forEach(t=>{
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      sel.appendChild(opt);
+    });
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+document.getElementById('skipPrepBtn').addEventListener('click', ()=>{
+  clearInterval(prepInterval);
+  goToAnswerPhase();
+});
+
+function goToAnswerPhase(){
+  document.getElementById('prepPhase').style.display='none';
+  document.getElementById('answerPhase').style.display='block';
+  if(currentFieldEls[0]) currentFieldEls[0].el.focus();
+
+  const q = session.questions[session.idx];
+  const ansSec = session.ansSecByCat[q.cat] ?? 180;
+  let remaining = ansSec;
+  const total = ansSec || 1;
+  const ansTimerEl = document.getElementById('ansTimer');
+  const ansBar = document.getElementById('ansBar');
+
+  function update(){
+    ansTimerEl.textContent = formatTime(remaining);
+    ansTimerEl.classList.toggle('warn', remaining<=30 && remaining>10);
+    ansTimerEl.classList.toggle('danger', remaining<=10);
+    ansBar.style.width = Math.max(0,(1-remaining/total)*100) + '%';
+  }
+  update();
+  ansInterval = setInterval(()=>{
+    remaining--;
+    update();
+    if(remaining<=0){ clearInterval(ansInterval); finishAnswer(); }
+  },1000);
+}
+
+document.getElementById('submitAnsBtn').addEventListener('click', ()=>{
+  // [THEORY-CONFIRM] 사례개념화 문제에서 상담이론을 고르지 않은 채(또는 무심코 기본값
+  // 그대로) 답변을 제출해버리는 일이 없도록, 종료 직전에 선택된 이론을 한 번 더
+  // 확인시켜줍니다. AI 자율연습·코칭 면접 코스 모두 이 answerPhase를 공유하므로
+  // 두 모드 전부에 자동으로 적용됩니다.
+  const q = session.questions[session.idx];
+  const theoryWrap = document.getElementById('theorySelectWrap');
+  const theorySel = document.getElementById('theorySelect');
+  if (q.cat === 'case' && theoryWrap && theoryWrap.style.display !== 'none' && theorySel && theorySel.value) {
+    const confirmed = confirm(`선택하신 상담이론: "${theorySel.value}"
+
+이 이론으로 답변을 제출할까요?
+이론을 바꾸시려면 취소를 누르고 위에서 다시 선택해 주세요.`);
+    if (!confirmed) return;
+  }
+  clearInterval(ansInterval);
+  finishAnswer();
+});
+
+function finishAnswer(){
+  const q = session.questions[session.idx];
+  const fieldsData = currentFieldEls.map(f=>({key:f.key, label:f.label, value:f.el.value.trim()}));
+  const theorySel = document.getElementById('theorySelect');
+  const theory = (q.cat === 'case' && theorySel && theorySel.value) ? theorySel.value : null;
+  session.answers[session.idx] = { question:q, fields:fieldsData, checklist:[], confidence:3, theory };
+
+  document.getElementById('answerPhase').style.display='none';
+  document.getElementById('reviewPhase').style.display='block';
+  // [EARLY-EXIT-HIDE-ON-LAST] 남은 문항이 없으면(현재가 마지막 문항) 나가기와 다음 문항의
+  // 결과가 동일해지므로 나가기 버튼을 숨깁니다.
+  const exitBtnEl = document.getElementById('exitQBtn');
+  if (exitBtnEl) exitBtnEl.style.display = (session.idx < session.questions.length - 1) ? '' : 'none';
+  document.getElementById('reviewQuestion').textContent = q.q;
+  document.getElementById('reviewTips').innerHTML = '<b>평가 포인트 / 답변 가이드</b><ul>' + q.tips.map(t=>`<li>${t}</li>`).join('') + '</ul>';
+
+  const box = document.getElementById('reviewAnswerBox');
+  box.innerHTML = '';
+  fieldsData.forEach(f=>{
+    const div = document.createElement('div');
+    div.className = 'reviewfield';
+    div.innerHTML = `<div class="flabel">${f.label}</div><div class="fval">${f.value || '(미작성)'}</div>`;
+    box.appendChild(div);
+  });
+
+  const checklistBox = document.getElementById('checklistBox');
+  checklistBox.innerHTML = '';
+  // [SUPERVISION-PHASE2] 수퍼비전은 카테고리 공통 체크리스트 대신, 이 문제 하나에
+  // 등록된 평가포인트(tips)를 그대로 자기 평가 체크리스트로 씁니다.
+  const items = q.cat === 'supervision' ? (q.tips || []) : (CHECKLISTS[q.cat] || []);
+  items.forEach((item,i)=>{
+    const lbl = document.createElement('label');
+    lbl.innerHTML = `<input type="checkbox" data-idx="${i}"> ${item}`;
+    checklistBox.appendChild(lbl);
+  });
+  document.getElementById('confidenceSel').value='3';
+}
+
+// [EARLY-EXIT] 현재 문항(리뷰 화면)에서 체크리스트/자신감 값을 session.answers에
+// 반영하는 로직을 다음 문항 이동과 중간 종료(나가기)가 함께 쓸 수 있도록 분리합니다.
+function captureCurrentAnswerChecklist(){
+  const checked = Array.from(document.getElementById('checklistBox').querySelectorAll('input:checked')).map(i=>parseInt(i.dataset.idx));
+  session.answers[session.idx].checklist = checked;
+  const doneQ = session.answers[session.idx].question;
+  session.answers[session.idx].checklistTotal = doneQ.cat === 'supervision'
+    ? (doneQ.tips || []).length
+    : (CHECKLISTS[doneQ.cat] || []).length;
+  session.answers[session.idx].confidence = parseInt(document.getElementById('confidenceSel').value);
+}
+
+document.getElementById('nextQBtn').addEventListener('click', ()=>{
+  captureCurrentAnswerChecklist();
+  session.idx++;
+  if(session.idx >= session.questions.length){
+    finishSession();
+  } else {
+    startQuestion();
+  }
+});
+
+// [EARLY-EXIT] 예: 사례개념화 답변을 마쳤는데 상담윤리가 남아 있을 때, 이어서 진행하지
+// 않고 지금까지 답변한 내용만 저장하고 세션을 종료하고 싶은 경우를 위한 버튼입니다.
+// 아직 답하지 않은 나머지 문항은 잘라내고 finishSession()으로 바로 넘어갑니다.
+document.getElementById('exitQBtn').addEventListener('click', ()=>{
+  const hasRemaining = session.idx < session.questions.length - 1;
+  if (hasRemaining && !confirm('남은 영역은 진행하지 않고, 지금까지 답변한 내용만 저장하고 종료할까요?')) {
+    return;
+  }
+  captureCurrentAnswerChecklist();
+  session.answers = session.answers.slice(0, session.idx + 1);
+  session.questions = session.questions.slice(0, session.idx + 1);
+  finishSession();
+});
+
+function compileAnswerText(a){
+  return a.fields.map(f=>`${f.label}: ${f.value || '(미작성)'}`).join('\n');
+}
+
+async function finishSession(){
+  document.getElementById('sessionCard').style.display='none';
+  document.getElementById('summaryCard').style.display='block';
+
+  const avgConf = (session.answers.reduce((s,a)=>s+a.confidence,0)/session.answers.length);
+  const sumChecked = session.answers.reduce((s,a)=>s+a.checklist.length,0);
+  const sumTotal = session.answers.reduce((s,a)=>s+a.checklistTotal,0);
+  const checklistRate = sumTotal>0 ? (sumChecked/sumTotal*100) : 0;
+
+  document.getElementById('summaryMeta').textContent =
+    `${session.grade}급 전문상담사 · 문항 ${session.questions.length}개 · 평균 자신감 ${avgConf.toFixed(1)}/5 · 체크리스트 충족률 ${checklistRate.toFixed(0)}%`
+    + (session.isPreview ? ' · 👀 관리자 미리보기 (저장되지 않음)' : '');
+
+  const listEl = document.getElementById('summaryList');
+  listEl.innerHTML = '';
+  session.answers.forEach((a,i)=>{
+    const div = document.createElement('div');
+    div.className = 'histitem';
+    const compiled = compileAnswerText(a);
+    div.innerHTML = `
+      <div class="meta">${a.question.catLabel} · 체크 ${a.checklist.length}/${a.checklistTotal} · 자신감 ${a.confidence}/5</div>
+      <div style="font-weight:bold;margin-bottom:6px;">Q${i+1}. ${a.question.q}</div>
+      <div class="muted" style="white-space:pre-line;">${compiled.slice(0,300)}${compiled.length>300?'...':''}</div>
+    `;
+    listEl.appendChild(div);
+  });
+
+  // [ADMIN-PRACTICE-PREVIEW] 미리보기 세션은 실제 수련생 기록이 아니므로 저장하지 않고,
+  // 하루 이용 현황도 갱신할 필요가 없습니다(관리자 본인 계정의 실제 이용과 무관).
+  if (session.isPreview) {
+    return;
+  }
+
+  // [통합] 서버 API(/api/interview/save)로 저장 — 퀴즈 뱅크와 동일한 계정/토큰 체계 사용
+  const answersPayload = session.answers.map(a=>({
+    cat: a.question.cat, catLabel: a.question.catLabel, q: a.question.q,
+    questionId: a.question.id, theory: a.theory || null,
+    answerText: compileAnswerText(a), checklistCount: a.checklist.length,
+    checklistTotal: a.checklistTotal, confidence: a.confidence
+  }));
+
+  const saveErrorEl = document.getElementById('saveErrorNotice');
+  try {
+    const res = await fetch('/api/interview/save', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({
+        grade: session.grade,
+        answers: answersPayload,
+        avg_confidence: avgConf,
+        checklist_rate: checklistRate
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      console.error('세션 저장 실패:', err.message);
+      // [SAVE-ERROR-VISIBILITY] 콘솔에만 남기지 않고 화면에도 바로 보여줍니다 —
+      // 저장이 조용히 실패하면 "체험 횟수가 안 늘어난다"처럼 보일 수 있어서입니다.
+      if (saveErrorEl) {
+        saveErrorEl.textContent = `⚠️ 저장 실패: ${err.message || '알 수 없는 오류'} (이번 연습 기록은 저장되지 않았습니다.)`;
+        saveErrorEl.style.display = 'block';
+      }
+    } else if (isPracticeFreeTrial()) {
+      // [OPTIMISTIC-COUNT-UPDATE] 서버에 다시 물어보는 loadPracticeDailyStatus()를
+      // 기다리지 않고, 방금 저장에 성공한 답변 개수만큼 카운터를 즉시 반영합니다.
+      answersPayload.forEach(a => {
+        if (a.cat === 'case') practiceFreeTrialUsage.case = (practiceFreeTrialUsage.case || 0) + 1;
+        if (a.cat === 'ethics') practiceFreeTrialUsage.ethics = (practiceFreeTrialUsage.ethics || 0) + 1;
+      });
+      renderFreeTrialUsageInfo();
+    }
+  } catch (e) {
+    console.error('세션 저장 실패:', e.message);
+    if (saveErrorEl) {
+      saveErrorEl.textContent = `⚠️ 저장 실패: 네트워크 오류로 저장하지 못했습니다. (${e.message}) 이번 연습 기록은 저장되지 않았습니다.`;
+      saveErrorEl.style.display = 'block';
+    }
+  }
+  // [PRACTICE-DAILY-LIMIT] 방금 완료한 연습이 오늘 카운트에 반영되도록 상태를 새로고침합니다
+  // — "새 모의면접 시작" 버튼을 다시 눌렀을 때 바로 막히도록.
+  loadPracticeDailyStatus();
+}
+
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  document.getElementById('summaryCard').style.display='none';
+  session = null;
+  renderPracticeTab();
+});
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const catLabelsUsed = [...new Set(session.answers.map(a=>a.question.catLabel))].join('/');
+  let text = `전문상담사 AI 모의면접 결과 (${session.grade}급 · ${catLabelsUsed})\n응시자: ${currentUser ? (currentUser.name || currentUser.email) : ''}\n생성일: ${new Date().toLocaleString('ko-KR')}\n\n`;
+  session.answers.forEach((a,i)=>{
+    text += `[Q${i+1}] (${a.question.catLabel})\n${a.question.q}\n\n${compileAnswerText(a)}\n\n체크리스트 충족: ${a.checklist.length}/${a.checklistTotal} / 자신감: ${a.confidence}/5\n----------------------\n`;
+  });
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `모의면접결과_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function formatTime(sec){
+  sec = Math.max(0,sec);
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+// [BANK-PRACTICE-NOW] 질문은행에서 특정 문제를 골라 바로 AI 자율연습을 시작합니다
+// (기존 AI 자율연습은 무작위 출제만 지원했는데, 특정 사례를 콕 집어 연습하고
+// 싶을 때를 위한 지름길입니다).
+function practiceSingleQuestion(questionId){
+  const access = getInterviewAccessStatus();
+  if (access !== 'premium' && access !== 'admin'){
+    alert('모의면접 이용 승인이 필요합니다.');
+    return;
+  }
+  // [QBANK-PREVIEW-DEEPLINK] admin.html에서 URL 파라미터(항상 문자열)로 넘어오는 경우도
+  // 있어 느슨 비교(String 변환)도 함께 확인합니다.
+  const q = QUESTIONS.find(x => x.id === questionId || String(x.id) === String(questionId));
+  if (!q) { alert('문제를 찾을 수 없습니다.'); return; }
+
+  // [PRACTICE-TIME-ADMIN-ONLY] 사례개념화·상담윤리·수퍼비전 모두 관리자가 설정한 값을 씁니다.
+  const prepSecByCat = {
+    case:   featureFlags.practicePrepSecCase   || 900,
+    ethics: featureFlags.practicePrepSecEthics || 30,
+    supervision: featureFlags.practicePrepSecSupervision || SUPERVISION_PREP_SEC
+  };
+  const ansSecByCat = {
+    case:   featureFlags.practiceAnsSecCase   || 180,
+    ethics: featureFlags.practiceAnsSecEthics || 180,
+    supervision: featureFlags.practiceAnsSecSupervision || SUPERVISION_ANS_SEC
+  };
+  const grade = effectivePracticeGrade() || '2';
+  // [ADMIN-PRACTICE-PREVIEW] 질문은행에서 바로 연습을 시작하는 이 경로는 급수 미리보기를
+  // 먼저 선택하지 않고도 진입할 수 있으므로, isAdminPracticePreviewing() 하나만으로는
+  // 관리자의 실제 저장을 막지 못합니다 — 관리자 계정이면 무조건 미리보기로 취급합니다.
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+
+  session = { grade, questions: [q], idx:0, answers:[], prepSecByCat, ansSecByCat, isPreview: isAdmin };
+
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('navPracticeBtn').classList.add('active');
+  document.querySelectorAll('main section').forEach(s=>s.style.display='none');
+  document.getElementById('tab-practice').style.display='block';
+
+  document.getElementById('setupCard').style.display='none';
+  document.getElementById('summaryCard').style.display='none';
+  document.getElementById('sessionCard').style.display='block';
+  renderDots();
+  startQuestion();
+}
+
+// ============================================================
+// HISTORY TAB (서버 API 기반, 본인 기록만)
+// ============================================================
+// [HISTORY-SOURCE-SPLIT] 마지막으로 불러온 연습 기록 원본(필터링 전)과 현재 선택된
+// 구분 필터('all'|'practice'|'coaching'|'course')를 모듈 범위에 보관해, 필터 버튼을
+// 누를 때마다 다시 fetch하지 않고 renderHistoryList()만 다시 호출합니다.
+let historyCache = [];
+let historyFilterType = 'all';
+const HISTORY_SOURCE_LABEL = {
+  practice: '🤖 AI 자율연습',
+  coaching: '🎥 코칭 면접 코스',
+  course: '🎯 AI 면접 코스'
+};
+
+async function renderHistory(){
+  // [RECORDS-ADMIN] 관리자는 본인 기록 대신 전체 수련생 연습기록(admin.html에서 옮겨온
+  // 화면)을 봅니다 — admin.html의 "면접 연습기록" 탭과 같은 API를 그대로 씁니다.
+  const adminSessionsWrap = document.getElementById('adminSessionsWrap');
+  const historyStudentWrap = document.getElementById('historyStudentWrap');
+  const isAdmin = !!(currentUser && currentUser.isAdmin);
+  if (isAdmin) {
+    if (adminSessionsWrap) adminSessionsWrap.style.display = 'block';
+    if (historyStudentWrap) historyStudentWrap.style.display = 'none';
+    loadInterviewSessions();
+    return;
+  }
+  if (adminSessionsWrap) adminSessionsWrap.style.display = 'none';
+  if (historyStudentWrap) historyStudentWrap.style.display = 'block';
+
+  // [LOCK-SCREEN-PARITY] AI 자율연습·AI 면접 코스 탭과 동일하게, 미승인 일반 회원에게는
+  // 실제 연습 기록 대신 승인 안내 카드를 보여줍니다.
+  const historyApprovalCard = document.getElementById('historyApprovalRequiredCard');
+  const historyContentCard = document.getElementById('historyContentCard');
+  const historyAccess = getInterviewAccessStatus();
+  const historyApproved = historyAccess === 'premium' || historyAccess === 'admin';
+  if (!historyApproved) {
+    if (historyApprovalCard) historyApprovalCard.style.display = 'block';
+    if (historyContentCard) historyContentCard.style.display = 'none';
+    return;
+  }
+  if (historyApprovalCard) historyApprovalCard.style.display = 'none';
+  if (historyContentCard) historyContentCard.style.display = 'block';
+
+  // [HISTORY-SOURCE-SPLIT] "AI 면접 코스"는 관리자가 켜고 끌 수 있는 별도 탭이므로,
+  // 그 구분 필터 버튼은 실제로 열려 있을 때만 보여줍니다.
+  const courseFilterBtn = document.getElementById('historyFilterCourseBtn');
+  if (courseFilterBtn) courseFilterBtn.style.display = isNavTabVisibleForCurrentUser('schedule') ? 'inline-block' : 'none';
+
+  const listEl = document.getElementById('histList');
+  if(!currentUser || !currentUser.email){ listEl.innerHTML = '<div class="empty">로그인 후 이용해 주세요.</div>'; return; }
+  listEl.innerHTML = '<div class="empty">불러오는 중...</div>';
+
+  try {
+    const res = await fetch('/api/interview/list', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+    if (res.status === 401) { listEl.innerHTML = '<div class="empty">세션이 만료되었습니다. 다시 로그인해 주세요.</div>'; return; }
+    const data = await res.json();
+    if (!res.ok) { listEl.innerHTML = `<div class="empty">기록을 불러오지 못했습니다: ${data.message || ''}</div>`; return; }
+
+    historyCache = Array.isArray(data) ? data : [];
+    renderHistoryList();
+  } catch (e) {
+    listEl.innerHTML = `<div class="empty">기록을 불러오지 못했습니다.</div>`;
+  }
+}
+
+// [HISTORY-SOURCE-SPLIT] historyCache를 historyFilterType 기준으로 걸러 #histList에
+// 그립니다. AI자율연습/코칭 면접 코스/AI 면접 코스를 배지로도 함께 표시해, "전체"
+// 필터에서도 어떤 연습인지 한눈에 구분할 수 있게 합니다.
+function renderHistoryList(){
+  const listEl = document.getElementById('histList');
+  if (!listEl) return;
+  if (historyCache.length === 0) {
+    listEl.innerHTML = '<div class="empty">아직 연습 기록이 없습니다. 모의면접을 진행해 보세요.</div>';
+    return;
+  }
+  const filtered = historyFilterType === 'all'
+    ? historyCache
+    : historyCache.filter(h => (h.sourceType || 'practice') === historyFilterType);
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div class="empty">"${HISTORY_SOURCE_LABEL[historyFilterType] || '전체'}" 기록이 없습니다.</div>`;
+    return;
+  }
+  listEl.innerHTML='';
+  filtered.forEach(h=>{
+    const div = document.createElement('div');
+    div.className='histitem';
+    const dateStr = new Date(h.created_at).toLocaleString('ko-KR');
+    const sourceLabel = HISTORY_SOURCE_LABEL[h.sourceType] || HISTORY_SOURCE_LABEL.practice;
+    div.innerHTML = `<div class="meta">${dateStr} · ${h.grade}급 · 문항 ${h.answers.length}개</div>
+      <div><span class="pill">${sourceLabel}</span>
+      <span class="score-badge">평균 자신감 ${Number(h.avg_confidence).toFixed(1)}/5</span>
+      <span class="score-badge">체크리스트 ${Number(h.checklist_rate).toFixed(0)}%</span></div>
+      <div style="margin-top:8px;">${h.answers.map((a,i)=>`
+        <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--border);">
+          <b>Q${i+1}. (${escapeHtml(a.catLabel)}${a.theory ? ' · ' + escapeHtml(a.theory) : ''})</b>
+          <div style="white-space:pre-line; margin-top:4px;">${escapeHtml(a.q)}</div>
+          ${a.answerText ? `<div style="margin-top:8px; padding:10px 12px; background:#f8faff; border-radius:8px; border:1px solid var(--border);"><b>✍️ 제출한 답변</b><div style="white-space:pre-line; margin-top:6px;">${escapeHtml(a.answerText)}</div></div>` : ''}
+          ${a.feedback ? `<div class="tips" style="margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+              <b>🤖 AI 피드백</b>
+              <button type="button" class="btn-admin-outline" style="font-size:var(--fs-caption); padding:2px 8px; white-space:nowrap;" onclick="reportFeedback('${h.id}', ${i}, this)">🚩 이상해요</button>
+            </div>
+            <div style="white-space:pre-line; margin-top:6px;">${escapeHtml(a.feedback)}</div>
+          </div>` : (a.feedbackPending ? `<div class="tips" style="margin-top:8px; background:#fffaf0;">
+            <b>🎥 코칭 세션에서 안내 예정</b>
+            <div style="white-space:pre-line; margin-top:6px; color:#718096;">실시간 코칭 세션에서 수퍼바이저가 함께 확인하며 공개해드릴 예정입니다.</div>
+            ${h.liveSessionTime ? `<div style="margin-top:8px; font-size:var(--fs-label); color:#4a5568;">📅 ${escapeHtml(h.liveSessionTime)}${h.liveMeetingLink ? ` · <a href="${escapeHtml(h.liveMeetingLink)}" target="_blank" rel="noopener">참여 링크</a>` : ''}</div>` : ''}
+          </div>` : '')}
+        </div>
+      `).join('')}</div>`;
+    listEl.appendChild(div);
+  });
+}
+
+// [HISTORY-SOURCE-SPLIT] 구분 필터 버튼 클릭 처리 — historyFilterWrap에 이벤트 위임으로
+// 한 번만 등록합니다(renderHistory가 여러 번 호출돼도 중복 등록되지 않도록).
+const historyFilterWrapEl = document.getElementById('historyFilterWrap');
+if (historyFilterWrapEl) {
+  historyFilterWrapEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.history-filter-btn');
+    if (!btn) return;
+    historyFilterType = btn.dataset.filter || 'all';
+    historyFilterWrapEl.querySelectorAll('.history-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderHistoryList();
+  });
+}
+
+// ============================================================
+// [RECORDS-ADMIN] admin.html "면접 연습기록" 탭에서 옮겨온 관리자 전용 — 전체 회원의
+// 연습기록을 열람·삭제하고, 답변별로 AI 피드백을 생성합니다.
+// ============================================================
+let interviewSessionsCache = [];
+// [RECORDS-ADMIN-STUDENT-FILTER] 목록을 수련생별로 나눠 볼 수 있는 필터 — 'all'이면 전체,
+// 아니면 선택된 수련생의 이메일입니다(팀 필터 adminTrainingTeamFilter와 같은 패턴).
+let sessionsStudentFilter = 'all';
+// [STEP3-REVIEW-QUEUE] 기본값 true — 관리자가 "전체 목록"이 아니라 "검토 필요" 항목만
+// 먼저 보도록(원 로드맵 Phase 3 항목 3 "필터 기본값 조정"). 체크 해제하면 전체를 봅니다.
+let sessionsReviewOnlyFilter = true;
+// [DELETE-VISIBILITY] 기본값 false — 수련생이 스스로 삭제한(소프트 삭제) 기록은 기존과
+// 동일하게 숨깁니다. 체크하면 admin-sessions에 includeDeleted:true로 다시 요청해서
+// 삭제된 기록도 함께 봅니다(실제로는 DB에 그대로 남아있습니다).
+let sessionsIncludeDeleted = false;
+
+window.loadInterviewSessions = async function(){
+  const tbody = document.getElementById('interview-session-list-body');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/api/interview/admin-sessions', { method:'POST', headers: authHeaders(), body: JSON.stringify({ includeDeleted: sessionsIncludeDeleted }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '목록을 불러오지 못했습니다.');
+    interviewSessionsCache = data || [];
+    populateSessionsStudentFilter(interviewSessionsCache);
+    renderInterviewSessionList(getFilteredSessions());
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:#e53e3e;">${escapeHtml(e.message)}</td></tr>`;
+  }
+};
+
+// [RECORDS-ADMIN-STUDENT-FILTER] "수련생 선택" 드롭다운을 채웁니다 — 회원별 건수를 함께
+// 보여주고, 이전에 고른 수련생이 최신 목록에도 있으면 그대로 유지합니다(팀 필터와 동일한 방식).
+function populateSessionsStudentFilter(sessions){
+  const sel = document.getElementById('sessionsStudentFilter');
+  if (!sel) return;
+  const byEmail = new Map();
+  sessions.forEach(s => {
+    const email = s.user_email || '';
+    if (!email) return;
+    if (!byEmail.has(email)) byEmail.set(email, { name: s.user_name || email, count: 0 });
+    byEmail.get(email).count += 1;
+  });
+  const students = [...byEmail.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name, 'ko'));
+  const stillExists = sessionsStudentFilter === 'all' || byEmail.has(sessionsStudentFilter);
+  if (!stillExists) sessionsStudentFilter = 'all';
+  sel.innerHTML = '<option value="all">전체 수련생</option>' +
+    students.map(([email, info]) => `<option value="${escapeHtml(email)}">${escapeHtml(info.name)} (${info.count}건)</option>`).join('');
+  sel.value = sessionsStudentFilter;
+}
+
+function filterSessionsByStudent(sessions){
+  if (sessionsStudentFilter === 'all') return sessions;
+  return sessions.filter(s => s.user_email === sessionsStudentFilter);
+}
+
+// [STEP3-REVIEW-QUEUE] 수련생 필터 + "검토 필요만 보기" 필터를 함께 적용합니다.
+function getFilteredSessions(){
+  let list = filterSessionsByStudent(interviewSessionsCache);
+  if (sessionsReviewOnlyFilter) list = list.filter(s => (s.reviewCount || 0) > 0);
+  return list;
+}
+
+document.getElementById('sessionsStudentFilter').addEventListener('change', (e) => {
+  sessionsStudentFilter = e.target.value;
+  renderInterviewSessionList(getFilteredSessions());
+});
+
+document.getElementById('sessionsReviewOnlyFilter').addEventListener('change', (e) => {
+  sessionsReviewOnlyFilter = e.target.checked;
+  renderInterviewSessionList(getFilteredSessions());
+});
+
+document.getElementById('sessionsIncludeDeletedFilter').addEventListener('change', (e) => {
+  sessionsIncludeDeleted = e.target.checked;
+  loadInterviewSessions();
+});
+
+function renderInterviewSessionList(sessions){
+  const countLabel = document.getElementById('sessionsFilteredCount');
+  if (countLabel) countLabel.textContent = sessionsStudentFilter === 'all' ? '' : `${sessions.length}건 표시 중`;
+  const tbody = document.getElementById('interview-session-list-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (!sessions.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="muted" style="text-align:center; padding:30px;">연습 기록이 없습니다.</td></tr>';
+    return;
+  }
+  sessions.forEach(s => {
+    const tr = document.createElement('tr');
+    // [STEP3-REVIEW-QUEUE] admin-sessions가 answers 배열마다 계산해 내려주는
+    // needsReview/reviewReasons를 세션 단위로 합쳐 배지로 보여줍니다.
+    // [STEP4-FEEDBACK-REPORT] Phase C — 신고가 섞인 세션은 더 눈에 띄게 표시합니다
+    // (목록 자체도 admin-sessions에서 이미 맨 위로 정렬되어 내려옵니다).
+    const reviewBadge = s.hasReport
+      ? `<span style="color:#c53030; font-weight:700;">🚩 신고 포함 · 검토 필요 (${s.reviewCount})</span>`
+      : (s.reviewCount || 0) > 0
+        ? `<span style="color:#c53030; font-weight:600;">🔍 검토 필요 (${s.reviewCount})</span>`
+        : `<span style="color:#2f855a;">✅ 정상</span>`;
+    // [HISTORY-SOURCE-SPLIT] AI 자율연습/코칭 면접 코스/AI 면접 코스 구분 배지.
+    const sourceBadgeHtml = `<span class="pill" style="white-space:nowrap;">${HISTORY_SOURCE_LABEL[s.sourceType] || HISTORY_SOURCE_LABEL.practice}</span>`;
+    // [DELETE-VISIBILITY] 삭제된(소프트 삭제) 기록은 회원명 아래에 삭제일을 함께 표시합니다.
+    const deletedNote = s.deletedAt
+      ? `<div style="color:#a0aec0; font-size:var(--fs-caption); margin-top:2px;">🗑 삭제됨 (${new Date(s.deletedAt).toLocaleDateString('ko-KR')})</div>`
+      : '';
+    const cells = [
+      `${escapeHtml(s.user_name || '-')} (${escapeHtml(s.user_email || '')})${deletedNote}`,
+      sourceBadgeHtml,
+      `${escapeHtml(s.grade || '-')}급`,
+      `${(s.answers || []).length}개`,
+      `${Number(s.avg_confidence || 0).toFixed(1)}/5`,
+      `${Number(s.checklist_rate || 0).toFixed(0)}%`,
+      new Date(s.created_at).toLocaleString('ko-KR'),
+      reviewBadge
+    ];
+    cells.forEach((html, i) => {
+      const td = document.createElement('td');
+      td.style.cssText = i === 0 ? 'text-align:left; padding:10px; border-bottom:1px dashed var(--border);' : 'text-align:center; padding:10px; border-bottom:1px dashed var(--border);';
+      td.innerHTML = html;
+      tr.appendChild(td);
+    });
+
+    const tdActions = document.createElement('td');
+    tdActions.style.cssText = 'text-align:center; padding:10px; border-bottom:1px dashed var(--border);';
+    const btnView = document.createElement('button');
+    btnView.textContent = '👁️';
+    btnView.title = '상세보기';
+    btnView.style.cssText = 'background:none; border:none; cursor:pointer; margin-right:8px; font-size:var(--fs-body);';
+    btnView.addEventListener('click', () => viewSessionDetail(s));
+    tdActions.appendChild(btnView);
+    // [DELETE-VISIBILITY] 이미 삭제된 기록은 다시 삭제할 수 없으므로 삭제 버튼을 숨깁니다.
+    if (!s.deletedAt) {
+      const btnDel = document.createElement('button');
+      btnDel.textContent = '🗑️';
+      btnDel.title = '삭제';
+      btnDel.style.cssText = 'background:none; border:none; cursor:pointer; color:#e74c3c; font-size:var(--fs-body);';
+      btnDel.addEventListener('click', () => deleteInterviewSession(s.id));
+      tdActions.appendChild(btnDel);
+    }
+    tr.appendChild(tdActions);
+
+    tbody.appendChild(tr);
+  });
+}
+
+// [AI-FEEDBACK] 답변별로 "🤖 AI 피드백 생성" 버튼을 제공하는 상세 패널. 이미 생성된
+// 피드백이 있으면 바로 보여주고, 없으면 버튼을 눌러 그 자리에서 생성합니다.
+function viewSessionDetail(s){
+  const panel = document.getElementById('session-detail-panel');
+  const heading = document.getElementById('session-detail-heading');
+  const body = document.getElementById('session-detail-body');
+  if (!panel || !heading || !body) return;
+
+  heading.textContent = `${s.user_name || ''} (${s.user_email || ''}) · ${s.grade}급 · ${new Date(s.created_at).toLocaleString('ko-KR')}`;
+  body.innerHTML = '';
+
+  (s.answers || []).forEach((a, i) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:12px; background:#fafbfc;';
+
+    const meta = document.createElement('div');
+    meta.className = 'muted';
+    meta.style.cssText = 'margin-bottom:4px;';
+    meta.textContent = `Q${i + 1} · ${a.catLabel}${a.theory ? ' · ' + a.theory : ''} · 체크리스트 ${a.checklistCount}/${a.checklistTotal} · 자신감 ${a.confidence}/5`;
+    card.appendChild(meta);
+
+    const qEl = document.createElement('div');
+    qEl.style.cssText = 'font-weight:700; margin-bottom:8px; white-space:pre-line;';
+    qEl.textContent = a.q;
+    card.appendChild(qEl);
+
+    const ansLabel = document.createElement('div');
+    ansLabel.style.cssText = 'font-size:var(--fs-caption); font-weight:700; color:var(--accent); margin-bottom:2px;';
+    ansLabel.textContent = '수련생 답변';
+    card.appendChild(ansLabel);
+
+    const ansEl = document.createElement('div');
+    ansEl.style.cssText = 'font-size:var(--fs-label); color:#2d3748; white-space:pre-line; margin-bottom:10px;';
+    ansEl.textContent = a.answerText || '(미작성)';
+    card.appendChild(ansEl);
+
+    const feedbackWrap = document.createElement('div');
+    feedbackWrap.id = `feedback-wrap-${i}`;
+    if (a.feedback) {
+      // [STEP3-REVIEW-QUEUE] 이상 신호/샘플링 사유가 있으면 피드백 위에 검토 배너를 띄웁니다.
+      const reviewReasons = Array.isArray(a.reviewReasons) ? a.reviewReasons : [];
+      const reviewBanner = reviewReasons.length > 0
+        ? `<div style="margin-bottom:8px; padding:8px 10px; background:#fff5f5; border:1px solid #feb2b2; border-radius:8px; font-size:var(--fs-caption); color:#c53030;"><b>🔍 검토 필요</b><ul style="margin:4px 0 0 18px; padding:0;">${reviewReasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`
+        : '';
+      feedbackWrap.innerHTML = `${reviewBanner}<div class="tips"><b>🤖 AI 피드백</b><div style="white-space:pre-line; margin-top:6px;">${escapeHtml(a.feedback)}</div></div>`;
+    } else {
+      const btn = document.createElement('button');
+      btn.className = 'secondary';
+      btn.textContent = '🤖 AI 피드백 생성';
+      btn.addEventListener('click', () => generateSessionFeedback(s.id, i, btn));
+      feedbackWrap.appendChild(btn);
+    }
+    card.appendChild(feedbackWrap);
+
+    body.appendChild(card);
+  });
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function generateSessionFeedback(sessionId, answerIndex, btn){
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = '생성 중... (수 초 소요될 수 있습니다)';
+  try {
+    const res = await fetch('/api/interview/admin-generate-feedback', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ sessionId, answerIndex })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '피드백 생성 실패');
+
+    // [STEP3-REVIEW-QUEUE] 방금 생성한 피드백의 이상 신호도 바로 보여줍니다.
+    // [STEP4-FEEDBACK-REPORT] Phase C — admin-generate-feedback 응답에는 신고 정보가
+    // 없으므로(별도 API), 직전까지 캐시에 있던 "🚩 수련생이 신고했습니다" 줄은 그대로
+    // 유지해 새로 생성한 피드백을 봐도 신고 여부가 사라지지 않게 합니다. 신고 자체를
+    // 처리 완료로 표시하려면 관리자 대시보드의 "🚩 신고된 피드백"에서 별도로 처리합니다.
+    const priorCachedAnswer = interviewSessionsCache.find(x => x.id === sessionId)?.answers?.[answerIndex];
+    const priorReportReasons = (priorCachedAnswer?.reviewReasons || []).filter(r => r.startsWith('🚩'));
+    const newReasons = [
+      ...priorReportReasons,
+      ...((data.feedbackFlags && Array.isArray(data.feedbackFlags.reasons)) ? data.feedbackFlags.reasons : [])
+    ];
+    const newBanner = newReasons.length > 0
+      ? `<div style="margin-bottom:8px; padding:8px 10px; background:#fff5f5; border:1px solid #feb2b2; border-radius:8px; font-size:var(--fs-caption); color:#c53030;"><b>🔍 검토 필요</b><ul style="margin:4px 0 0 18px; padding:0;">${newReasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`
+      : '';
+    const wrap = document.getElementById(`feedback-wrap-${answerIndex}`);
+    wrap.innerHTML = `${newBanner}<div class="tips"><b>🤖 AI 피드백</b><div style="white-space:pre-line; margin-top:6px;">${escapeHtml(data.feedback)}</div></div>`;
+
+    const cached = interviewSessionsCache.find(x => x.id === sessionId);
+    if (cached && cached.answers[answerIndex]) {
+      cached.answers[answerIndex].feedback = data.feedback;
+      cached.answers[answerIndex].feedbackFlags = data.feedbackFlags;
+      cached.answers[answerIndex].needsReview = newReasons.length > 0;
+      cached.answers[answerIndex].reviewReasons = newReasons;
+    }
+  } catch (e) {
+    alert('피드백 생성 실패: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+async function deleteInterviewSession(id){
+  if (!confirm('이 연습 기록을 삭제하시겠습니까?')) return;
+  try {
+    const res = await fetch('/api/interview/admin-session-delete', {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ id })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || '삭제 실패');
+    await loadInterviewSessions();
+  } catch (e) {
+    alert('삭제 실패: ' + e.message);
+  }
+}
+
+// [STEP4-FEEDBACK-REPORT] 수련생이 "내 연습 기록"에서 이상한 AI 피드백을 신고합니다.
+window.reportFeedback = async function(sessionId, answerIndex, btnEl){
+  const reason = prompt('어떤 점이 이상한가요? (선택 사항 — 비워두고 확인을 눌러도 신고됩니다)', '');
+  if (reason === null) return; // 취소
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = '신고 중...'; }
+  try {
+    const res = await fetch('/api/interview/feedback-report', {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ sessionId, answerIndex, reason })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || '신고에 실패했습니다.');
+    if (btnEl) btnEl.textContent = '✅ 신고 접수됨';
+    alert(data.message || '신고가 접수되었습니다.');
+  } catch (e) {
+    alert('신고 실패: ' + e.message);
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '🚩 이상해요'; }
+  }
+};
+
+document.getElementById('clearHistBtn').addEventListener('click', async ()=>{
+  if(!currentUser || !currentUser.email) return;
+  if(confirm('내 연습 기록을 모두 삭제하시겠습니까?')){
+    try {
+      const res = await fetch('/api/interview/clear', { method:'POST', headers: authHeaders(), body: JSON.stringify({}) });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok) { alert('삭제 실패: ' + (data.message || '')); return; }
+      renderHistory();
+    } catch (e) {
+      alert('삭제 실패');
+    }
+  }
+});
+
+</script>
+</body>
+</html>

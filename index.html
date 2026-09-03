@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindPass - 상담·심리 자격시험 통합 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 랜딩 페이지 전용 스타일 — style.css(공통 디자인 시스템)의 토큰을 그대로 사용합니다. */
+
+        .site-topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .topbar-inner {
+            max-width: 1080px; margin: 0 auto; padding: 16px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), #1e40af);
+            color: #fff; font-weight: 800; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+        .brand-text { font-size: 1.25rem; font-weight: 800; color: var(--navy-dark); }
+        .brand-sub { font-size: var(--fs-label); color: var(--text-faint); margin-left: 6px; padding-left: 10px; border-left: 1px solid var(--border-color); }
+        @media (max-width: 600px) { .brand-sub { display: none; } }
+
+        /* ── 히어로 ── */
+        .hero { text-align: center; padding: 80px 16px 40px; }
+        .hero h1 {
+            font-size: 2.5rem; line-height: 1.3; font-weight: 800;
+            letter-spacing: -0.03em; color: var(--navy-dark); margin-bottom: 18px;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--primary) 20%, #0ea5e9 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .hero-sub {
+            font-size: var(--fs-emphasis); color: var(--text-sub);
+            max-width: 600px; margin: 0 auto 36px;
+        }
+
+        .feature-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px; margin: 50px 0 80px;
+        }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl); padding: 36px 30px;
+            box-shadow: var(--shadow-sm); transition: all var(--transition-normal);
+            display: flex; flex-direction: column; justify-content: flex-start; text-align: left;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary);
+        }
+        .feature-icon-wrapper {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: var(--primary-light); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; margin-bottom: 20px;
+        }
+        .feature-icon-wrapper .nav-icon {
+            width: 26px; height: 26px; stroke-width: 1.75;
+        }
+        .feature-card h3 { font-size: 1.25rem; margin-bottom: 10px; }
+        .feature-card p { color: var(--text-sub); font-size: var(--fs-body); line-height: 1.65; }
+
+        /* [PUBLIC-SERVICE-INFO] 비로그인 방문자에게 서비스 구성/개설 상태를 보여주는
+           배지·상세보기 토글·요금표 스타일. */
+        .feature-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+        .badge-pill {
+            padding: 4px 10px; border-radius: var(--radius-full);
+            background: var(--surface-alt); color: var(--text-sub);
+            font-size: var(--fs-caption); font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+        }
+        .badge-pill-accent { background: var(--primary-light); color: var(--primary-dark); }
+        .badge-pill-open { background: var(--success-bg); color: var(--success); }
+        .badge-pill-open::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--success); flex-shrink: 0;
+        }
+        .badge-pill-closed { background: var(--surface-alt); color: var(--text-faint); }
+
+        .feature-card-actions {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-soft);
+        }
+        .feature-detail-toggle {
+            background: none; border: none; color: var(--primary);
+            font-weight: 600; font-size: var(--fs-label); cursor: pointer;
+            transition: opacity var(--transition-fast);
+        }
+        .feature-detail-toggle:hover { opacity: .7; }
+
+        .feature-detail {
+            margin-top: 0; max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height .3s var(--ease), opacity .25s var(--ease), margin-top .3s var(--ease);
+        }
+        .feature-detail.open {
+            margin-top: 18px; max-height: 900px; opacity: 1;
+            padding-top: 18px; border-top: 1px solid var(--border-soft);
+        }
+        .feature-detail h4 {
+            font-size:var(--fs-caption); color: var(--text-faint); margin: 0 0 10px;
+            text-transform: uppercase; letter-spacing: .06em; font-weight: 700;
+        }
+        .feature-detail h4:not(:first-child) { margin-top: 18px; }
+        .feature-detail ul { list-style: none; margin: 0 0 4px; padding: 0; font-size:var(--fs-body); color: var(--text-sub); }
+        .feature-detail ul:last-child { margin-bottom: 0; }
+        .feature-detail ul li {
+            position: relative; padding: 7px 0 7px 20px; line-height: 1.6;
+        }
+        .feature-detail ul li + li { border-top: 1px dashed var(--border-soft); }
+        .feature-detail ul li::before {
+            content: ''; position: absolute; left: 2px; top: 15px;
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--border-strong);
+        }
+        .feature-detail ul li b { color: var(--navy-dark); font-weight: 700; }
+        .feature-detail ul li .muted { color: var(--text-faint); }
+
+        .feature-price-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size:var(--fs-label); margin-bottom: 8px;
+            border: 1px solid var(--border-soft); border-radius: var(--radius-sm); overflow: hidden;
+        }
+        .feature-price-table th, .feature-price-table td {
+            padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border-soft);
+        }
+        .feature-price-table tr:last-child td { border-bottom: none; }
+        .feature-price-table th {
+            background: var(--surface-alt); color: var(--text-sub); font-weight: 700;
+            font-size:var(--fs-caption); text-transform: uppercase; letter-spacing: .04em;
+        }
+        .feature-price-table td:first-child, .feature-price-table th:first-child { text-align: left; }
+        .feature-price-table td { color: var(--navy-dark); font-weight: 600; }
+
+        .modal-close-x {
+            position: absolute; top: 14px; right: 16px; background: none; border: none;
+            font-size:var(--fs-emphasis); color: var(--text-faint); cursor: pointer; line-height: 1; padding: 6px;
+            border-radius: var(--radius-sm); transition: background var(--transition-fast), color var(--transition-fast);
+        }
+        .modal-close-x:hover { color: var(--text-sub); background: var(--border-soft); }
+
+        /* 로그인 / 회원가입 폼 공통 (guest-view는 전역 .modal-content를 그대로 사용) */
+        .auth-header { margin-bottom: 22px; }
+        .auth-header h2 { font-size: var(--fs-title); margin-bottom: 6px; }
+        .auth-header p { color: var(--text-sub); font-size: var(--fs-label); }
+        .input-group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+        .input-wrapper {
+            display: flex; align-items: center; gap: 10px;
+            border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+            padding: 10px 14px; background: #fff;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+        .input-wrapper .icon { font-size: var(--fs-body); flex-shrink: 0; }
+        .input-wrapper input { border: none; outline: none; flex: 1; padding: 0; font-size: var(--fs-label); background: transparent; color: var(--text-main); }
+        .button-group { display: flex; flex-direction: column; gap: 10px; }
+        .main-btn { width: 100%; padding: 12px; }
+        .btn-outline { background: #fff; border: 1px solid var(--border-strong); color: var(--navy); }
+        .btn-outline:hover { background: var(--surface-alt); }
+        .btn-forgot { background: none; border: none; color: var(--primary); font-size: var(--fs-label); font-weight: 600; cursor: pointer; }
+        .btn-forgot:hover { text-decoration: underline; }
+        .btn-logout-main {
+            width: 100%; margin-top: 4px; background: transparent; border: 1px solid var(--border-color);
+            padding: 10px; border-radius: var(--radius-sm); color: var(--text-sub); font-size: var(--fs-label); cursor: pointer;
+        }
+        .btn-logout-main:hover { background: #fff; color: var(--danger); border-color: var(--danger); }
+
+        /* 로그인 / 회원가입 탭 */
+        .auth-tabs { display: flex; border-bottom: 2px solid var(--border-soft); margin-bottom: 24px; }
+        .auth-tab {
+            flex: 1; padding: 12px; background: none; border: none; font-weight: 600;
+            color: var(--text-faint); border-bottom: 2px solid transparent; margin-bottom: -2px;
+            cursor: pointer; font-size: var(--fs-body);
+        }
+        .auth-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* 비밀번호 강도 표시 바 */
+        .pw-strength-bar { height: 5px; border-radius: 4px; margin-top: 8px; transition: all .3s var(--ease); background: var(--border-soft); width: 0; }
+        .pw-strength-bar.weak   { background: var(--danger); width: 33%; }
+        .pw-strength-bar.medium { background: var(--warn); width: 66%; }
+        .pw-strength-bar.strong { background: var(--success); width: 100%; }
+        .pw-strength-text { font-size:var(--fs-caption); margin-top: 4px; color: var(--text-faint); }
+
+        /* recovery 진입 배지 */
+        .recovery-badge {
+            display: inline-block; background: #ebf8ff; color: #2b6cb0;
+            font-size:var(--fs-caption); font-weight: 700; padding: 4px 12px;
+            border-radius: var(--radius-full); margin-bottom: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="site-topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="brand-mark">M</span>
+                <span class="brand-text">MindPass</span>
+                <span class="brand-sub">상담·심리 자격시험 통합 플랫폼</span>
+            </div>
+            <button id="btn-open-login" class="btn-primary" style="border-radius: var(--radius-full); padding: 8px 20px;" onclick="openLoginModal()">로그인</button>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 안내 배너 — 로그인 여부와
+             무관하게 항상 최상단에 표시됩니다(개설된 회차가 있을 때만 채워짐). -->
+        <div id="coachingPromoBanner"></div>
+
+        <!-- 비로그인 상태: 랜딩 히어로 -->
+        <section id="hero-landing" class="hero">
+            <h1>상담·심리 전문가로 가는 최적의 길,<br><span class="accent">MindPass와 함께 도약하세요</span></h1>
+            <p class="hero-sub">기출 기반의 퀴즈 풀이부터 실전 중심 AI 모의면접·화상 코칭까지 원스톱 지원</p>
+            <button class="btn-primary" style="font-size: var(--fs-emphasis); padding: 14px 34px; border-radius: var(--radius-full);" onclick="openLoginModal('signup')">지금 무료로 시작하기</button>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-wrapper"><svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5 7 21l5-3 5 3-1.5-8.5"/></svg></div>
+                        <h3>자격증 퀴즈 뱅크</h3>
+                        <p>임상심리사·청소년상담사 기출문제를 무료로 학습하세요. 급수·과목·연도별 맞춤 필터로 취약점을 집중 보완할 수 있습니다.</p>
+                        <div class="feature-badges">
+                            <span class="badge-pill badge-pill-accent">완전 무료</span>
+                            <span class="badge-pill">임상심리사</span>
+                            <span class="badge-pill">청소년상담사</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="feature-card-actions">
+                            <button type="button" class="feature-detail-toggle" onclick="toggleServiceDetail('quiz', this)">자세히 보기 ▾</button>
+                            <button type="button" class="btn-primary" onclick="openLoginModal('login', 'premium.html')">바로 풀기</button>
+                        </div>
+                        <div class="feature-detail" id="detail-quiz"></div>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-wrapper"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6"/></svg></div>
+                        <h3>전문상담사 AI 모의면접</h3>
+                        <p>사례개념화, 상담윤리, 수퍼비전(1급)을 실전 시뮬레이션으로 대비합니다. 체계적인 AI 피드백과 소그룹 실시간 코칭 연계 지원.</p>
+                        <div class="feature-badges" id="interview-status-badges">
+                            <span class="badge-pill">불러오는 중...</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="feature-card-actions">
+                            <button type="button" class="feature-detail-toggle" onclick="toggleServiceDetail('interview', this)">자세히 보기 ▾</button>
+                            <button type="button" class="btn-primary" onclick="openLoginModal('login', 'interview.html')">연습 시작</button>
+                        </div>
+                        <div class="feature-detail" id="detail-interview"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 로그인 완료 후 뷰 -->
+        <div id="user-view" class="card" style="display: none; max-width: 480px; margin: 60px auto; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 12px;">👋</div>
+            <h2 style="margin-bottom: 8px;">환영합니다!</h2>
+            <p id="user-display-info" style="color: var(--text-sub); margin-bottom: 24px;"></p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" style="padding: 14px;" onclick="location.href='premium.html'">🧠 자격증 퀴즈 뱅크 풀기</button>
+                <button class="btn-primary" style="padding: 14px;" onclick="location.href='interview.html'">🎤 전문상담사 AI 모의면접</button>
+                <button id="btn-admin-menu" class="btn-admin-outline" style="display:none; padding: 14px;" onclick="location.href='admin.html'">🛠 관리자 대시보드</button>
+                <button class="btn-logout" style="margin-top: 4px;" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">© 2026 MindPass · 상담·심리 자격시험 통합 플랫폼</footer>
+
+    <!-- 로그인 모달 (작은 로그인 버튼을 눌러야 열림) -->
+    <div id="auth-modal-overlay" class="modal-overlay" style="display:none;">
+        <div id="guest-view" class="modal-content" style="position:relative;">
+            <button type="button" class="modal-close-x" onclick="closeLoginModal()" aria-label="닫기">✕</button>
+
+            <!-- 상단 탭 바 (reset·new-password 진입 시 JS로 숨김) -->
+            <div id="auth-tabs-bar" class="auth-tabs">
+                <button id="tab-login"  class="auth-tab active" onclick="switchTab('login')">로그인</button>
+                <button id="tab-signup" class="auth-tab"        onclick="switchTab('signup')">회원가입</button>
+            </div>
+
+            <!-- ── 1. 로그인 폼 ── -->
+            <div id="form-login">
+                <div class="auth-header">
+                    <h2>환영합니다</h2>
+                    <p>학습을 시작하려면 로그인해주세요.</p>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="icon">📧</span>
+                        <input type="email" id="email" placeholder="이메일 주소">
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="password" placeholder="비밀번호"
+                               onkeydown="if(event.key==='Enter') handleLogin()">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary main-btn" onclick="handleLogin()">로그인</button>
+                </div>
+                <p style="text-align:center; margin-top:16px;">
+                    <button class="btn-forgot" onclick="switchTab('reset')">🔑 비밀번호를 잊으셨나요?</button>
+                </p>
+            </div>
+
+            <!-- ── 2. 회원가입 폼 ── -->
+            <div id="form-signup" style="display:none;">
+                <div class="auth-header">
+                    <h2>회원가입</h2>
+                    <p>이름, 이메일, 비밀번호를 입력해주세요.</p>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="icon">🙍</span>
+                        <input type="text" id="signup-name" placeholder="이름 (20자 이내)" maxlength="20">
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="icon">📧</span>
+                        <input type="email" id="signup-email" placeholder="이메일 주소">
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="signup-password" placeholder="비밀번호 (6자 이상)">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn-primary main-btn" onclick="handleSignUp()">가입하기</button>
+                </div>
+            </div>
+
+            <!-- ── 3. 비밀번호 재설정 이메일 발송 폼 ── -->
+            <div id="form-reset" style="display:none;">
+                <div class="auth-header">
+                    <h2>비밀번호 재설정</h2>
+                    <p>가입하신 이메일로<br>재설정 링크를 보내드립니다.</p>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="icon">📧</span>
+                        <input type="email" id="reset-email" placeholder="가입한 이메일 주소"
+                               onkeydown="if(event.key==='Enter') handleResetPassword()">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="btn-send-reset" class="btn-primary main-btn" onclick="handleResetPassword()">
+                        재설정 링크 발송
+                    </button>
+                    <button class="btn-outline main-btn" onclick="switchTab('login')" style="margin-top:10px;">
+                        ← 로그인으로 돌아가기
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── 4. ★ [추가] 새 비밀번호 입력 폼 (이메일 링크 클릭 후 자동 진입) ── -->
+            <div id="form-new-password" style="display:none;">
+                <div class="auth-header">
+                    <div><span class="recovery-badge">🔐 이메일 인증 완료</span></div>
+                    <h2>새 비밀번호 설정</h2>
+                    <p>새로 사용할 비밀번호를 입력해주세요.</p>
+                </div>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="icon">🔒</span>
+                        <input type="password" id="new-password"
+                               placeholder="새 비밀번호 (6자 이상)"
+                               oninput="checkPasswordStrength(this.value)"
+                               onkeydown="if(event.key==='Enter') handleSetNewPassword()">
+                    </div>
+                    <!-- 비밀번호 강도 표시 -->
+                    <div style="padding: 0 4px;">
+                        <div id="pw-strength-bar"  class="pw-strength-bar"></div>
+                        <div id="pw-strength-text" class="pw-strength-text"></div>
+                    </div>
+                    <div class="input-wrapper" style="margin-top:4px;">
+                        <span class="icon">✅</span>
+                        <input type="password" id="new-password-confirm"
+                               placeholder="비밀번호 확인"
+                               onkeydown="if(event.key==='Enter') handleSetNewPassword()">
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="btn-set-password" class="btn-primary main-btn" onclick="handleSetNewPassword()">
+                        비밀번호 변경 완료
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 자동 로그아웃 경고 모달 -->
+    <div id="auto-logout-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 style="color: var(--danger); margin-bottom: 10px;">⏰ 자동 로그아웃 안내</h3>
+            <p style="color: var(--text-sub); margin-bottom: 20px;">장시간 활동이 없어<br><strong><span id="auto-logout-count">120</span>초</strong> 후 세션이 안전하게 종료됩니다.</p>
+            <button onclick="extendSession()" class="btn-primary" style="width: 100%;">계속하기</button>
+        </div>
+    </div>
+
+    <!-- handleLogout / showAlert 공통 모달 -->
+    <div id="custom-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-bottom: 8px;">알림</h3>
+            <p id="modal-desc" style="color: var(--text-sub); margin-bottom: 20px;">내용을 입력해주세요.</p>
+            <input type="date" id="modal-date-input" style="display:none; width: 100%; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px;">
+                <button id="modal-cancel-btn" onclick="closeCustomModal()" class="secondary" style="flex:1;">취소</button>
+                <button id="modal-confirm-btn" class="btn-primary" style="flex:1;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script src="premium-info.js"></script>
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 로그인 모달 열기/닫기
+        // 작은 "로그인" 버튼(또는 CTA/기능 카드)을 눌렀을 때만 로그인 화면이 뜨도록 합니다.
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // [LANDING-DIRECT-NAV] 기능 카드(퀴즈 뱅크/모의면접)를 눌러 로그인 모달을 열 때는
+        // redirectTo를 함께 넘겨줍니다. 로그인 성공 시 common.js의 handleLogin이
+        // window._pendingLoginRedirect를 확인해서 그 화면으로 바로 이동시켜줍니다.
+        // (헤더의 일반 "로그인" 버튼 등 redirectTo 없이 열린 경우는 기존처럼
+        // "다시 오셨네요" 메뉴가 그대로 뜹니다.)
+        function openLoginModal(tab, redirectTo) {
+            const overlay = document.getElementById('auth-modal-overlay');
+            if (overlay) overlay.style.display = 'flex';
+            if (tab) switchTab(tab);
+            window._pendingLoginRedirect = redirectTo || null;
+        }
+        function closeLoginModal() {
+            const overlay = document.getElementById('auth-modal-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // switchTab: login / signup / reset / new-password
+        // reset·new-password 진입 시 상단 탭 바 숨김
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function switchTab(tab) {
+            ['login', 'signup', 'reset', 'new-password'].forEach(t => {
+                const el = document.getElementById('form-' + t);
+                if (el) el.style.display = (tab === t) ? 'block' : 'none';
+            });
+
+            const tabBar = document.getElementById('auth-tabs-bar');
+            if (tab === 'reset' || tab === 'new-password') {
+                if (tabBar) tabBar.style.display = 'none';
+            } else {
+                if (tabBar) tabBar.style.display = 'flex';
+                document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
+                document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // [C-2] 비밀번호 재설정 URL 토큰 자동 감지
+        // Supabase가 재설정 링크에 ?type=recovery&token_hash=... 을 붙여줍니다.
+        // 페이지 로드 시 이 파라미터가 있으면 로그인 모달을 자동으로 열고
+        // 새 비밀번호 입력 폼으로 바로 진입합니다.
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        document.addEventListener('DOMContentLoaded', () => {
+            // [FIX-Critical] Supabase Legacy 플로우는 토큰을 hash fragment(#access_token=...)로 전달합니다.
+            // location.search만 읽으면 Legacy 플로우에서 new-password 폼으로 자동 진입이 실패합니다.
+            // URLSearchParams는 '#' 이후를 무시하므로 hash를 별도로 파싱합니다.
+            const searchParams = new URLSearchParams(location.search);
+            const hashParams   = new URLSearchParams(location.hash.replace(/^#/, ''));
+
+            const type  = searchParams.get('type') || hashParams.get('type');
+            // token_hash: PKCE 플로우 (권장), access_token: Legacy 플로우
+            // 두 플로우 모두 search와 hash 양쪽에서 탐색합니다.
+            const token = searchParams.get('token_hash')
+                || hashParams.get('token_hash')
+                || hashParams.get('access_token')
+                || searchParams.get('access_token');
+
+            if (type === 'recovery' && token) {
+                openLoginModal();
+                switchTab('new-password');
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 로그인 상태에 따라 랜딩 히어로 / 상단 로그인 버튼 표시 여부 결정
+        // (common.js가 #guest-view / #user-view 표시는 이미 처리합니다)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        document.addEventListener('DOMContentLoaded', () => {
+            const loggedIn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.email);
+            const hero = document.getElementById('hero-landing');
+            const loginBtn = document.getElementById('btn-open-login');
+            if (hero) hero.style.display = loggedIn ? 'none' : 'block';
+            if (loginBtn) loginBtn.style.display = loggedIn ? 'none' : 'inline-flex';
+            // [PUBLIC-SERVICE-STATUS] 비로그인 방문자에게 "AI 면접 코스/코칭 면접 코스가
+            // 지금 열려 있는지"를 보여주기 위해 무인증 공개 API를 조회합니다.
+            // [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 배너는 로그인 여부와 무관하게
+            // 항상 보여줘야 하므로, 공개 API 조회를 !loggedIn 조건에서 분리했습니다.
+            if (!loggedIn) {
+                loadExamCoverage();
+            }
+            loadPublicServiceStatus();
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // [PUBLIC-SERVICE-INFO] 회원가입 없이도 두 서비스가 각각 무엇을 제공하는지,
+        // AI 모의면접은 어떤 코스가 지금 열려 있는지 확인할 수 있도록 하는 영역입니다.
+        // 요금·혜택 문구는 premium-info.js(PREMIUM_INFO)의 값을 그대로 재사용해서,
+        // 로그인 후 화면(premium.html/interview.html)과 문구가 어긋나지 않게 합니다.
+        // 코스 열림/닫힘 여부와 코칭 면접 코스 개설 일정은 인증이 필요 없는
+        // /api/interview/public-service-status에서 받아옵니다(민감 정보는 포함하지 않음).
+        // [VERCEL-FUNCTION-LIMIT] 원래는 별도의 /api/public/service-status(전용 서버리스
+        // 함수)였는데, Vercel Hobby 플랜의 "함수 12개" 제한에 걸려 배포가 실패했습니다.
+        // 새 함수를 추가하지 않도록 기존 /api/interview 라우터의 공개 액션으로 옮겼습니다.
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let publicServiceStatus = null;
+
+        async function loadPublicServiceStatus(){
+            try {
+                const res = await fetch('/api/interview/public-service-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                if (res.ok) publicServiceStatus = await res.json();
+            } catch (e) {
+                console.error('[index] 서비스 상태 조회 실패:', e.message);
+            }
+            renderInterviewStatusBadges();
+            renderCoachingPromoBanner();
+            // 상세 영역이 이미 펼쳐진 상태라면(뒤늦게 응답이 온 경우) 최신 상태로 다시 그립니다.
+            const interviewDetail = document.getElementById('detail-interview');
+            if (interviewDetail && interviewDetail.classList.contains('open')) {
+                interviewDetail.innerHTML = renderInterviewDetailHTML();
+            }
+        }
+
+        function renderInterviewStatusBadges(){
+            const wrap = document.getElementById('interview-status-badges');
+            if (!wrap) return;
+            const s = publicServiceStatus || { practiceOpen: true, scheduleOpen: true, coachingOpen: true };
+            // [OPEN-ONLY] 관리자가 꺼둔(off) 구성은 "준비중" 배지로 보여주지 않고
+            // 아예 표시하지 않습니다 — 지금 실제로 신청 가능한 것만 보여줍니다.
+            const pill = label => `<span class="badge-pill badge-pill-open">${label}</span>`;
+            const pills = [];
+            if (s.practiceOpen) pills.push(pill('🤖 AI 자율연습'));
+            if (s.scheduleOpen) pills.push(pill('🎯 AI 면접 코스'));
+            if (s.coachingOpen) pills.push(pill('🎥 코칭 면접 코스'));
+            wrap.innerHTML = pills.length ? pills.join('') : '<span class="badge-pill badge-pill-closed">현재 준비 중입니다</span>';
+        }
+
+        function toggleServiceDetail(key, btnEl){
+            const panel = document.getElementById('detail-' + key);
+            if (!panel) return;
+            const isOpen = panel.classList.contains('open');
+            if (isOpen) {
+                panel.classList.remove('open');
+                if (btnEl) btnEl.textContent = '자세히 보기 ▾';
+                return;
+            }
+            if (key === 'quiz') panel.innerHTML = renderQuizDetailHTML();
+            if (key === 'interview') panel.innerHTML = renderInterviewDetailHTML();
+            panel.classList.add('open');
+            if (btnEl) btnEl.textContent = '접기 ▴';
+        }
+
+        // [PUBLIC-SERVICE-INFO] 자격증 퀴즈 뱅크 — 실제로 열람 가능한 연도 범위를
+        // /api/exam-coverage(문제 DB를 직접 조회하는 API, premium.html의 "이용 가능
+        // 연도 안내" 카드와 동일한 방식)에서 받아와 보여줍니다. "전체 연도"처럼
+        // 실제와 다른 문구 대신 정확한 연도 범위를 표시합니다. 해설 미제공 사실은
+        // premium-info.js의 free 배열 값을 그대로 씁니다.
+        let examCoverageData = null;
+
+        async function loadExamCoverage(){
+            try {
+                const res = await fetch('/api/exam-coverage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                if (res.ok) examCoverageData = await res.json();
+            } catch (e) {
+                console.error('[index] 연도 커버리지 조회 실패:', e.message);
+            }
+            const quizDetail = document.getElementById('detail-quiz');
+            if (quizDetail && quizDetail.classList.contains('open')) {
+                quizDetail.innerHTML = renderQuizDetailHTML();
+            }
+        }
+
+        // [GRADE-AWARE] premium.html의 formatYearRange/formatYearInfo와 동일한 규칙 —
+        // 급수마다 연도 범위가 같으면 통합 범위 하나만, 다르면 급수별로 나눠 표시합니다.
+        function formatYearRangeLabel(range) {
+            if (!range || !range.minYear || !range.maxYear) return '';
+            return range.minYear === range.maxYear ? `${range.minYear}년` : `${range.minYear}~${range.maxYear}년`;
+        }
+        function formatYearInfoLabel(bucket, grades) {
+            if (!bucket) return '';
+            if (!grades || grades.length <= 1 || bucket.uniform) return formatYearRangeLabel(bucket.combined);
+            return grades.map(g => `${g}급 ${formatYearRangeLabel(bucket.perGrade[g])}`).join(' · ');
+        }
+
+        function renderQuizDetailHTML(){
+            const clinical = (typeof PREMIUM_INFO !== 'undefined') ? PREMIUM_INFO.clinical_psych : null;
+            const youth    = (typeof PREMIUM_INFO !== 'undefined') ? PREMIUM_INFO.youth_counselor : null;
+            const section = (title, info, examType) => {
+                if (!info) return '';
+                const cov = examCoverageData ? examCoverageData[examType] : null;
+                const yearLabel = cov ? formatYearInfoLabel(cov.all, cov.grades || []) : '';
+                const yearBullet = yearLabel
+                    ? `${yearLabel} 기출문제 무료 열람 (횟수 제한 없음)`
+                    : '기출문제 무료 열람 (횟수 제한 없음)';
+                const explanationBullet = (info.free || []).find(t => t.includes('해설')) || '해설 미제공';
+                return `
+                    <h4>${title}</h4>
+                    <ul><li>${escapeHtml(yearBullet)}</li><li>${escapeHtml(explanationBullet)}</li></ul>
+                `;
+            };
+            return section('🧠 임상심리사 (1급·2급)', clinical, 'clinical_psych') + section('🧒 청소년상담사 (1급·2급·3급)', youth, 'youth_counselor');
+        }
+
+        // [PUBLIC-SERVICE-INFO] 전문상담사 AI 모의면접 — 관리자가 꺼둔(off) 구성은
+        // 목록·개설 일정·요금표 어디에도 나타나지 않고, 지금 실제로 이용 가능한
+        // 구성만 보여줍니다. [PRICE-ACCURACY] AI 자율연습은 단독으로 판매하는
+        // 상품이 아니라 AI 면접 코스 또는 코칭 면접 코스 신청 시 자동으로
+        // 포함되는 서비스라서, 요금표에서 "AI 자율연습 단독" 행을 완전히 뺐습니다
+        // (실제로 interview.html의 신청 모달에도 그런 단독 옵션이 없습니다).
+        // [COACHING-COURSE-BANNER] 코칭 면접 코스가 개설(아직 시작 전 또는 오늘 시작)되어
+        // 있으면 최상단에 신청 유도 배너를 보여줍니다. 로그인 여부에 따라 바로 이동하거나
+        // 로그인 모달을 먼저 띄운 뒤 이동합니다.
+        function renderCoachingPromoBanner(){
+            const el = document.getElementById('coachingPromoBanner');
+            if (!el) return;
+            const s = publicServiceStatus;
+            if (!s || !s.coachingOpen || !isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
+                el.innerHTML = '';
+                return;
+            }
+            const loggedIn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.email);
+            el.innerHTML = loggedIn
+                ? renderCoachingPromoBannerHTML({ href: 'interview.html?tab=coaching&apply=1' })
+                : renderCoachingPromoBannerHTML({ onclick: "openLoginModal('login', 'interview.html?tab=coaching&apply=1')" });
+        }
+
+        function renderInterviewDetailHTML(){
+            const s = publicServiceStatus || { practiceOpen: true, scheduleOpen: true, coachingOpen: true, coachingCourseSchedule: [] };
+            const info = (typeof PREMIUM_INFO !== 'undefined') ? PREMIUM_INFO.counselor_interview : null;
+
+            const lines = [];
+            if (s.practiceOpen) {
+                lines.push(`<li><b>🤖 AI 자율연습</b> <span class="muted">사례에 대한 문제를 풀고 AI 피드백을 받는 자율 연습 · 코칭 면접 코스 신청 시 포함</span></li>`);
+            }
+            if (s.scheduleOpen) {
+                lines.push(`<li><b>🎯 AI 면접 코스</b> <span class="muted">8회(1개월) 정기 제출 + AI 피드백</span></li>`);
+            }
+            if (s.coachingOpen) {
+                lines.push(`<li><b>🎥 코칭 면접 코스</b> <span class="muted">소그룹(9명) 실시간 화상 코칭 · AI 자율연습 포함</span></li>`);
+            }
+
+            let scheduleItems = '';
+            if (s.coachingOpen && Array.isArray(s.coachingCourseSchedule) && s.coachingCourseSchedule.length > 0) {
+                const gradeLabel = { '1': '1급', '2': '2급' };
+                const sorted = [...s.coachingCourseSchedule].sort((a, b) => {
+                    if ((a.grade || '') !== (b.grade || '')) return (a.grade || '').localeCompare(b.grade || '');
+                    return (a.startDate || '').localeCompare(b.startDate || '');
+                });
+                scheduleItems = sorted.map(r => {
+                    // [COACHING-SCHEDULE-DOW-TIME] 날짜에는 요일을, 관리자가 입력했으면 진행 시각도 함께 보여줍니다.
+                    const startWithDow = formatDateWithDow(r.startDate || '');
+                    const period = r.endDate ? `${escapeHtml(startWithDow)} ~ ${escapeHtml(formatDateWithDow(r.endDate))}` : escapeHtml(startWithDow);
+                    const time = formatTimeRangeKo(r.startTime || '', r.endTime || '');
+                    const timeText = time ? ` · ${escapeHtml(time)}` : '';
+                    const capacity = r.capacity ? ` · 정원 ${escapeHtml(String(r.capacity))}명` : '';
+                    return `<li>${gradeLabel[r.grade] || escapeHtml(r.grade || '')} · ${period}${timeText}${capacity}</li>`;
+                }).join('');
+            }
+
+            const noteOf = row => row ? (row.note || (Array.isArray(row.noteLines) ? row.noteLines.join(' · ') : '')) : '';
+            const priceRow = (label, priceObj) => {
+                if (!priceObj) return '';
+                const g2 = priceObj['2'], g1 = priceObj['1'];
+                return `<tr>
+                    <td style="text-align:left;">${escapeHtml(label)}</td>
+                    <td>${g2 ? escapeHtml(g2.amount) : '-'}<div class="muted" style="font-size:var(--fs-caption);">${escapeHtml(noteOf(g2))}</div></td>
+                    <td>${g1 ? escapeHtml(g1.amount) : '-'}<div class="muted" style="font-size:var(--fs-caption);">${escapeHtml(noteOf(g1))}</div></td>
+                </tr>`;
+            };
+            const priceRows = [];
+            if (info && s.scheduleOpen) priceRows.push(priceRow('AI 면접 코스 (자율연습 포함)', info.price));
+            if (info && s.coachingOpen) priceRows.push(priceRow('코칭 면접 코스(AI 자율연습 포함)', info.coachingPrice));
+            const priceTable = priceRows.length ? `
+                <h4>💳 이용 요금</h4>
+                <table class="feature-price-table">
+                    <thead><tr><th style="text-align:left;">구성</th><th>2급</th><th>1급</th></tr></thead>
+                    <tbody>${priceRows.join('')}</tbody>
+                </table>
+                <div class="muted" style="font-size:var(--fs-caption); margin-top:4px;">AI 자율연습은 별도 상품이 아니라 신청하신 코스에 자동으로 포함됩니다. 회원가입 후 신청하시면 관리자 확인을 거쳐 이용하실 수 있습니다.</div>
+            ` : '';
+
+            return `
+                <h4>📋 이용 가능한 구성</h4>
+                ${lines.length ? `<ul>${lines.join('')}</ul>` : '<p class="muted">현재 이용 가능한 구성이 없습니다. 곧 다시 열릴 예정이니 조금만 기다려주세요.</p>'}
+                ${scheduleItems ? `<h4>📅 코칭 면접 코스 개설 일정</h4><ul>${scheduleItems}</ul>` : ''}
+                ${priceTable}
+            `;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 비밀번호 강도 표시
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function checkPasswordStrength(pw) {
+            const bar  = document.getElementById('pw-strength-bar');
+            const text = document.getElementById('pw-strength-text');
+            if (!bar || !text) return;
+
+            if (!pw) {
+                bar.className  = 'pw-strength-bar';
+                text.innerText = '';
+                return;
+            }
+            const score = [
+                pw.length >= 8,
+                /[A-Z]/.test(pw),
+                /[a-z]/.test(pw),
+                /[0-9]/.test(pw),
+                /[^A-Za-z0-9]/.test(pw)
+            ].filter(Boolean).length;
+
+            if (score <= 2) {
+                bar.className    = 'pw-strength-bar weak';
+                text.innerText   = '⚠️ 약함 — 숫자·대문자·특수문자를 추가하면 더 안전합니다.';
+                text.style.color = '#c53030';
+            } else if (score <= 3) {
+                bar.className    = 'pw-strength-bar medium';
+                text.innerText   = '👍 보통';
+                text.style.color = '#d69e2e';
+            } else {
+                bar.className    = 'pw-strength-bar strong';
+                text.innerText   = '✅ 강함';
+                text.style.color = '#276749';
+            }
+        }
+    </script>
+</body>
+</html>

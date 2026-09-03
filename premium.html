@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자격증 퀴즈 뱅크 - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── 프리미엄 신청 버튼(현재 미사용, 향후 재도입 대비 보존) ── */
+        /* ── 업그레이드 모달 ── */
+        .upgrade-icon  { font-size:var(--fs-page-title); margin-bottom: 10px; }
+        .upgrade-title { font-size:var(--fs-title); font-weight: 800; color: var(--navy-dark); margin-bottom: 6px; }
+        .upgrade-sub   { font-size:var(--fs-body); color: var(--text-sub); margin-bottom: 20px; }
+        .upgrade-benefits {
+            background: #f8faff; border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 14px 18px; margin-bottom: 18px; text-align: left;
+        }
+        .upgrade-benefits li {
+            list-style: none; font-size:var(--fs-body); color: #2d3748;
+            padding: 4px 0; display: flex; align-items: center; gap: 8px;
+        }
+        .upgrade-payment-info {
+            background: #fff8e1; border: 1px solid #f6c90e;
+            border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 18px; text-align: left;
+        }
+        .payment-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 5px 0; font-size:var(--fs-body); gap: 12px; }
+        .payment-row + .payment-row { border-top: 1px dashed #f6d860; margin-top: 6px; padding-top: 10px; }
+        .payment-label { color: #92700a; font-weight: 600; white-space: nowrap; }
+        .payment-value { color: var(--navy-dark); text-align: right; line-height: 1.6; }
+        .btn-email-apply {
+            width: 100%; padding: 14px; border-radius: var(--radius-md); font-size:var(--fs-body);
+            font-weight: 700; cursor: pointer; border: none;
+            background: var(--primary); color: #fff;
+            transition: all var(--transition-fast); margin-bottom: 10px;
+        }
+        .btn-email-apply:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .upgrade-notice { font-size:var(--fs-caption); color: var(--text-faint); margin-top: 14px; line-height: 1.6; }
+        .btn-close-text { margin-top: 14px; background: none; border: none; color: var(--text-faint); cursor: pointer; font-size:var(--fs-label); }
+        .btn-close-text:hover { color: var(--text-sub); }
+
+        /* ── 이용 가능 기출 연도 안내 카드: "전체 무료 제공" 체크 표시와
+           급수별 연도 목록을 같은 불렛 목록으로 묶어, 불렛 위치가
+           서로 어긋나지 않도록 합니다. ── */
+        .tier-year-list { list-style: none; margin: 0; padding: 0; }
+        .tier-year-list li { position: relative; padding-left: 20px; line-height: 1.6; }
+        .tier-year-list li + li { margin-top: 4px; }
+        .tier-year-list li::before {
+            content: "•"; position: absolute; left: 4px; color: var(--text-sub);
+        }
+        .tier-year-list li.tier-year-headline { font-weight: 700; color: var(--success); }
+        .tier-year-list li.tier-year-headline::before { content: "✓"; color: var(--success); font-weight: 700; }
+        .tier-year-list .tier-benefit-year {
+            font-weight: 400; color: var(--text-sub); margin-left: 6px; font-size: var(--fs-caption);
+        }
+    </style>
+</head>
+<body class="premium-body">
+
+    <main class="container">
+
+        <!-- 상단 상태 바 -->
+        <div class="user-status-bar">
+            <div class="user-info">
+                <span class="user-name" id="display-name">로딩 중...</span>
+                <span class="badge" id="display-status">자격증을 선택하세요</span>
+                <button id="btn-admin-menu" class="btn-admin-outline"
+                        style="display:none; margin-left:10px;" onclick="location.href='admin.html'">🛠 관리자</button>
+            </div>
+            <div class="status-actions">
+                <!-- [FREE-ALL-1] 기출문제 전면 무료화로 프리미엄 신청 버튼을 제거했습니다. -->
+                <button class="btn-nav-link" onclick="location.href='interview.html'"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6"/></svg> AI 모의면접</button>
+                <button class="btn-nav-link" onclick="location.href='index.html'"><svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6 10v9h5v-5h2v5h5v-9"/></svg> 홈으로</button>
+                <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+
+        <!-- [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 안내 배너 — 개설된 회차가
+             있을 때만 표시됩니다. -->
+        <div id="coachingPromoBanner"></div>
+
+        <!-- 타이틀 -->
+        <header style="text-align: center; margin: 32px 0 20px;">
+            <h1 style="font-size: var(--fs-page-title); font-weight: 800; color: var(--navy-dark);">자격증 기출문제 퀴즈 뱅크</h1>
+            <p style="color: var(--text-sub); margin-top: 6px;">임상심리사 · 청소년상담사 전 과목을 완전히 무료로 학습할 수 있습니다.</p>
+        </header>
+
+        <!-- 필터 바 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <select id="sel-exam-type" onchange="updateExamType()">
+                    <option value="">자격증 선택</option>
+                    <option value="clinical_psych">임상심리사</option>
+                    <option value="youth_counselor">청소년상담사</option>
+                </select>
+                <select id="sel-grade" onchange="updateSubjects()" disabled>
+                    <option value="">급수 전체</option>
+                </select>
+                <select id="sel-category" disabled>
+                    <option value="">과목 전체</option>
+                </select>
+                <select id="sel-year" disabled>
+                    <option value="">연도 전체</option>
+                </select>
+                <select id="sel-limit" disabled>
+                    <option value="20">20문제</option>
+                    <option value="30">30문제</option>
+                    <option value="50">50문제</option>
+                    <option value="100">100문제</option>
+                </select>
+            </div>
+            <button class="btn-random" onclick="loadQuestions()" id="btn-load-questions" disabled>
+                <span>🎲</span> 랜덤 출제 시작
+            </button>
+        </div>
+
+        <!-- 문제 영역 -->
+        <div id="question-area">
+            <div class="card" style="text-align: center; padding: 48px 20px; color: var(--text-sub);">
+                <div style="font-size: 2.2rem; margin-bottom: 12px;">📋</div>
+                <p>상단 필터에서 <strong>자격증과 시험 항목</strong>을 먼저 선택한 후 출제 버튼을 눌러주세요.</p>
+            </div>
+
+            <!-- [TIER-INFO] 자격증을 선택하기 전에도, 두 자격증 모두 어디까지 무료이고
+                 어디서부터 프리미엄인지 미리 알 수 있도록 안내합니다. -->
+            <div id="examTierInfo" class="card" style="margin-top:16px;">
+                <h3 style="margin-bottom:14px; font-size: var(--fs-emphasis);">이용 가능 기출 연도 안내 (전체 무료 제공)</h3>
+                <div id="examTierInfoBody" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px;"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="site-footer">© 2026 MindPass · 상담·심리 자격시험 통합 플랫폼</footer>
+
+    <!-- 자동 로그아웃 경고 모달 -->
+    <div id="auto-logout-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 style="color: var(--danger); margin-bottom: 10px;">⏰ 자동 로그아웃 안내</h3>
+            <p style="color: var(--text-sub); margin-bottom: 20px;">장시간 활동이 없어<br><strong><span id="auto-logout-count">120</span>초</strong> 후 세션이 안전하게 종료됩니다.</p>
+            <button onclick="extendSession()" class="btn-primary" style="width: 100%;">계속 학습하기</button>
+        </div>
+    </div>
+
+    <!-- 공통 확인 모달 -->
+    <div id="custom-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-bottom: 8px;">알림</h3>
+            <p id="modal-desc" style="color: var(--text-sub); margin-bottom: 20px;">내용을 입력해주세요.</p>
+            <input type="date" id="modal-date-input" style="display:none; width: 100%; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px;">
+                <button id="modal-cancel-btn" onclick="closeCustomModal()" class="secondary" style="flex:1;">취소</button>
+                <button id="modal-confirm-btn" class="btn-primary" style="flex:1;">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- [FREE-ALL-1] 기출문제 전면 무료화로 이 페이지(임상심리사/청소년상담사)에서는
+         더 이상 이 모달을 여는 버튼이 없습니다. 마크업/스크립트는 향후 재도입 대비로
+         남겨두었을 뿐 현재는 도달 불가능한 코드입니다. -->
+    <!-- 프리미엄 업그레이드 안내 모달 (현재 미사용) -->
+    <div id="upgrade-modal" class="modal-overlay" style="display:none;" onclick="closeUpgradeModal(event)">
+        <div class="modal-content" style="width:400px; padding:35px 30px;">
+            <div id="upgrade-modal-body" style="text-align:center; padding:20px; color:#a0aec0;">
+                로딩 중...
+            </div>
+        </div>
+    </div>
+
+    <script src="premium-info.js"></script>
+    <!--
+        common.js 로드 순서 정책:
+        · common.js를 defer 없이 body 최하단에 배치합니다.
+        · body 최하단 배치는 DOM이 이미 파싱된 후이므로 defer와 동일한
+          효과를 가지면서, 이후 인라인 스크립트보다 먼저 실행됩니다.
+        · 아래 인라인 <script>에는 defer를 사용하지 않습니다.
+    -->
+    <script src="common.js"></script>
+    <script>
+        // ─────────────────────────────────────────────────────────────────
+        // [MULTI-CERT-1] 자격증별 급수/과목 데이터
+        // 급수 값(grade)은 문자열 "1"/"2"/"3"으로 questions.grade와 매칭됩니다.
+        // 과목은 필수+선택 과목을 모두 한 목록에 나열합니다(문제 category 필터용).
+        // ─────────────────────────────────────────────────────────────────
+        const gradeData = {
+            clinical_psych : [
+                { value: "1", label: "1급" },
+                { value: "2", label: "2급" }
+            ],
+            youth_counselor: [
+                { value: "1", label: "1급" },
+                { value: "2", label: "2급" },
+                { value: "3", label: "3급" }
+            ]
+        };
+
+        const subjectData = {
+            clinical_psych: {
+                "1": ["고급임상심리학", "고급이상심리학", "고급심리검사", "고급심리치료", "고급연구방법론"],
+                "2": ["심리학개론", "이상심리학", "심리검사", "임상심리학", "심리상담"]
+            },
+            youth_counselor: {
+                "1": ["상담자교육 및 사례지도", "청소년 관련 법과 행정", "상담연구방법론의 실제", "비행상담", "성상담", "약물상담", "위기상담"],
+                "2": ["청소년상담의 이론과 실제", "상담연구방법론의 기초", "심리측정평가의 활용", "이상심리", "진로상담", "집단상담", "가족상담", "학업상담"],
+                "3": ["발달심리", "집단상담의 기초", "심리측정및평가", "상담이론", "학습이론", "청소년이해론", "청소년수련활동론"]
+            }
+        };
+
+        const EXAM_LABELS_LOCAL = { clinical_psych: '임상심리사', youth_counselor: '청소년상담사' };
+
+        // ─────────────────────────────────────────────────────────────────
+        // [MULTI-CERT-1] 자격증 선택 변경 — 급수 옵션을 다시 채우고,
+        // 과목/연도 필터를 초기화한 뒤 등급 배지·업그레이드 버튼을 갱신합니다.
+        // ─────────────────────────────────────────────────────────────────
+        function updateExamType() {
+            const examType   = document.getElementById('sel-exam-type').value;
+            const gradeSel   = document.getElementById('sel-grade');
+            const categorySel= document.getElementById('sel-category');
+            const yearSel    = document.getElementById('sel-year');
+            const limitSel   = document.getElementById('sel-limit');
+            const loadBtn    = document.getElementById('btn-load-questions');
+
+            gradeSel.innerHTML = '<option value="">급수 전체</option>';
+            categorySel.innerHTML = '<option value="">과목 전체</option>';
+            yearSel.innerHTML = '<option value="">연도 전체</option>';
+
+            if (!examType) {
+                [gradeSel, categorySel, yearSel, limitSel, loadBtn].forEach(el => el.disabled = true);
+                updateTierUI(null);
+                return;
+            }
+
+            (gradeData[examType] || []).forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.value; opt.text = g.label;
+                gradeSel.add(opt);
+            });
+
+            gradeSel.disabled = false;
+            categorySel.disabled = false;
+            yearSel.disabled = false;
+            loadBtn.disabled = false;
+
+            updateTierUI(examType);
+            updateSubjects();
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // [FREE-ALL-1] 기출문제 전면 무료화 — 등급 배지는 이제 free/premium
+        // 구분 없이 "전체 무료 제공"으로 고정 표시하고, 연도·문제수 선택도
+        // 더 이상 잠그지 않습니다.
+        // ─────────────────────────────────────────────────────────────────
+        function updateTierUI(examType) {
+            const statusBadge = document.getElementById('display-status');
+            const limitSelect = document.getElementById('sel-limit');
+            const yearSelect  = document.getElementById('sel-year');
+
+            if (!examType) {
+                statusBadge.innerText = '자격증을 선택하세요';
+                return;
+            }
+
+            statusBadge.innerText = `${EXAM_LABELS_LOCAL[examType]} · 전체 무료 제공`;
+
+            limitSelect.innerHTML = `
+                <option value="20">20문제</option>
+                <option value="30">30문제</option>
+                <option value="50">50문제</option>
+                <option value="100">100문제</option>`;
+            limitSelect.disabled = false;
+            yearSelect.disabled  = false;
+            yearSelect.title     = '';
+            initYears(examType, '');
+        }
+
+        function updateSubjects() {
+            const examType        = document.getElementById('sel-exam-type').value;
+            const grade           = document.getElementById('sel-grade').value;
+            const categorySelect  = document.getElementById('sel-category');
+            if (!categorySelect || !examType) return;
+
+            categorySelect.innerHTML = '<option value="">과목 전체</option>';
+            const subjects = (subjectData[examType] || {})[grade];
+            if (grade && subjects) {
+                subjects.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub; opt.text = sub;
+                    categorySelect.add(opt);
+                });
+            }
+
+            // [FREE-ALL-1] 등급과 무관하게 항상 연도 목록을 갱신합니다.
+            initYears(examType, grade);
+        }
+
+        async function initYears(examType, grade = '') {
+            const yearSelect = document.getElementById('sel-year');
+            if (!yearSelect || !examType) return;
+
+            try {
+                const response = await fetch('/api/years', {
+                    method : 'POST',
+                    headers: authHeaders(),
+                    body   : JSON.stringify({ examType, grade })
+                });
+
+                if (response.status === 401) {
+                    console.warn('세션이 만료되었습니다. 다시 로그인해주세요.');
+                    location.href = 'index.html';
+                    return;
+                }
+
+                if (!response.ok) throw new Error(`years API 오류 (${response.status})`);
+
+                const years = await response.json();
+                yearSelect.innerHTML = '<option value="">연도 전체</option>';
+                years.forEach(year => {
+                    const opt = document.createElement('option');
+                    opt.value = year; opt.text = year + '년';
+                    yearSelect.add(opt);
+                });
+            } catch (e) { console.error('연도 로드 실패:', e); }
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // [TIER-INFO-COVERAGE] "무료 회원이 볼 수 있는 연도"와 "프리미엄 회원이
+        // 해설과 함께 볼 수 있는 연도"를 하드코딩하지 않고, /api/exam-coverage가
+        // DB에서 직접 계산한 값을 그대로 가져와 보여줍니다. 문제가 추가/삭제돼도
+        // 코드 수정 없이 항상 실제 현황을 반영합니다.
+        // ─────────────────────────────────────────────────────────────────
+        async function fetchExamCoverage() {
+            try {
+                const res = await fetch('/api/exam-coverage', { method: 'POST', headers: authHeaders() });
+                if (!res.ok) throw new Error(`exam-coverage API 오류 (${res.status})`);
+                return await res.json();
+            } catch (e) {
+                console.error('연도 커버리지 로드 실패:', e);
+                return null;
+            }
+        }
+
+        // 페이지 진입 시 안내 카드에서 이미 불러온 결과를 업그레이드 모달을 열
+        // 때마다 다시 요청하지 않도록 캐시합니다. 실패(null)했을 때는 캐시하지
+        // 않아 다음 호출에서 다시 시도합니다.
+        let _examCoverageCache = null;
+        async function getExamCoverage() {
+            if (_examCoverageCache) return _examCoverageCache;
+            const data = await fetchExamCoverage();
+            if (data) _examCoverageCache = data;
+            return data;
+        }
+
+        function formatYearRange(range) {
+            if (!range || !range.minYear || !range.maxYear) return '없음';
+            return range.minYear === range.maxYear
+                ? `${range.minYear}년`
+                : `${range.minYear}~${range.maxYear}년`;
+        }
+
+        // [GRADE-AWARE] 급수마다 연도 범위가 같으면(uniform) 통합 범위 하나만,
+        // 다르면 급수별로 나눠서 표시합니다 — 무료/프리미엄 라벨 우측 배지 텍스트로 씁니다.
+        function formatYearInfo(bucket, grades) {
+            if (!bucket) return '';
+            if (grades.length <= 1 || bucket.uniform) {
+                return formatYearRange(bucket.combined);
+            }
+            return grades.map(g => `${g}급 ${formatYearRange(bucket.perGrade[g])}`).join(' · ');
+        }
+
+        // [YEAR-LINES] 위 formatYearInfo와 같은 데이터로, "이용 가능 기출 연도 안내"
+        // 카드에서 급수별로 줄바꿈해 보여주기 위한 배열 버전입니다. 급수가 모두
+        // 같은 범위를 쓰는 경우(uniform)에도 급수 표시가 빠지지 않도록 급수 라벨을
+        // 항상 붙입니다.
+        function buildYearInfoLines(cov) {
+            if (!cov || !cov.all) return [];
+            const bucket = cov.all;
+            const grades = cov.grades || [];
+            if (grades.length <= 1 || bucket.uniform) {
+                const gradeLabel = grades.length ? grades.map(g => `${g}급`).join('·') + ' ' : '';
+                return [gradeLabel + formatYearRange(bucket.combined)];
+            }
+            return grades.map(g => `${g}급 ${formatYearRange(bucket.perGrade[g])}`);
+        }
+
+        // [FREE-ALL-1] 기출문제 전면 무료화 — free/premium 구분 없이 통합 연도
+        // 범위(cov.all) 하나만 배지로 보여줍니다.
+        function buildYearInfoBadges(cov) {
+            if (!cov) return null;
+            return { all: formatYearInfo(cov.all, cov.grades || []) };
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // [TIER-INFO] 자격증 선택 전 안내 카드 — 임상심리사·청소년상담사 두 자격증
+        // 모두에 대해 이용 가능 연도를 한눈에 보여줍니다.
+        // [FREE-ALL-1] 기출문제 전면 무료화 — 더 이상 무료/프리미엄 비교나
+        // 프리미엄 신청 CTA·요금 표시가 필요 없습니다. 자격증별로 "전체 무료
+        // 제공" 안내와 실제 이용 가능 연도 범위만 보여줍니다.
+        async function renderExamTierInfo() {
+            const container = document.getElementById('examTierInfoBody');
+            if (!container) return;
+
+            const examTypes = ['clinical_psych', 'youth_counselor'];
+            const coverage  = await getExamCoverage();
+
+            container.innerHTML = examTypes.map(examType => {
+                const grades    = (gradeData[examType] || []).map(g => g.label).join(' · ');
+                const cov       = coverage ? coverage[examType] : null;
+                const yearLines = buildYearInfoLines(cov);
+                const yearItems = yearLines.map(line => `<li>${escapeHtml(line)}</li>`).join('');
+
+                return `
+                    <div style="border:1px solid #e2e8f0; border-radius:10px; padding:14px 16px;">
+                        <div style="font-weight:700; margin-bottom:8px;">${EXAM_LABELS_LOCAL[examType]}
+                            <span style="font-weight:400; font-size:var(--fs-caption); color:#a0aec0;">(${grades})</span>
+                        </div>
+                        <div class="tier-benefit-block tier-benefit-free">
+                            <ul class="tier-year-list">
+                                <li class="tier-year-headline">전체 무료 제공</li>
+                                ${yearItems}
+                                <li>전체 연도 · 전체 문제 무료 열람 (횟수 제한 없음)</li>
+                                <li>해설 미제공</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ── 초기화 ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(sessionStorage.getItem('quiz_user'));
+            if (!user || !user.email) {
+                location.href = 'index.html';
+                return;
+            }
+            updateTierUI(null);
+            renderExamTierInfo();
+            loadCoachingPromoBanner();
+        });
+
+        // [COACHING-COURSE-BANNER] 코칭 면접 코스가 개설(아직 시작 전 또는 오늘 시작)
+        // 되어 있으면 최상단에 신청 유도 배너를 보여줍니다. 이 페이지는 로그인 회원만
+        // 볼 수 있으므로 바로 interview.html의 신청 화면으로 링크합니다.
+        async function loadCoachingPromoBanner(){
+            const el = document.getElementById('coachingPromoBanner');
+            if (!el) return;
+            try {
+                const res = await fetch('/api/interview/public-service-status', {
+                    method: 'POST', headers: authHeaders(), body: JSON.stringify({})
+                });
+                if (!res.ok) return;
+                const s = await res.json();
+                if (s.coachingOpen && isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
+                    el.innerHTML = renderCoachingPromoBannerHTML({ href: 'interview.html?tab=coaching&apply=1' });
+                }
+            } catch (e) {
+                console.error('[premium] 코칭 면접 코스 배너 조회 실패:', e.message);
+            }
+        }
+
+        /* ── 프리미엄 정보 로드 (premium-info.js, 자격증별) ── */
+        async function fetchPremiumInfo(examType) {
+            if (typeof PREMIUM_INFO === 'undefined' || !PREMIUM_INFO[examType]) {
+                console.error('PREMIUM_INFO에 해당 자격증 정보가 없습니다:', examType);
+                return null;
+            }
+            return PREMIUM_INFO[examType];
+        }
+
+        // [FREE-ALL-1] 이 페이지에서는 더 이상 어떤 버튼도 showUpgradeModal을
+        // 호출하지 않아 아래 함수들은 현재 도달 불가능합니다(향후 재도입 대비 보존).
+        async function renderUpgradeModal() {
+            const body     = document.getElementById('upgrade-modal-body');
+            const examType = document.getElementById('sel-exam-type').value;
+            const info     = await fetchPremiumInfo(examType);
+
+            if (!info) {
+                body.innerHTML = '<p style="color:#e53e3e;">안내 정보를 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.</p>';
+                return;
+            }
+
+            // [MULTI-CERT-3] examTierInfo 카드와 동일하게, 모달에서도 무료/프리미엄
+            // 라벨 옆에 실제 이용 가능 연도를 보여줍니다(전에는 카드에만 있고
+            // 모달에는 빠져 있었습니다).
+            const coverage = await getExamCoverage();
+            const yearInfo = buildYearInfoBadges(coverage ? coverage[examType] : null);
+
+            body.innerHTML = `
+                <div class="upgrade-icon">⭐</div>
+                <div class="upgrade-title">${info.title}</div>
+                <p class="upgrade-sub">${info.subtitle}</p>
+                <div class="upgrade-payment-info">
+                    ${window.renderPricePlanSelectorHTML(info.price)}
+                </div>
+                ${window.renderTierBenefitsHTML(info, yearInfo)}
+                <button class="btn-email-apply" onclick="sendUpgradeEmail()">
+                    📧 이메일로 프리미엄 신청하기
+                </button>
+                <p class="upgrade-notice">${info.notice}</p>
+                <button class="btn-close-text" onclick="closeUpgradeModal()">✕ 닫기</button>
+            `;
+        }
+
+        // [TIER-INFO] examTierInfo 카드의 "프리미엄 신청" 버튼은 아직 상단
+        // 자격증 드롭다운을 선택하지 않은 상태에서도 눌릴 수 있으므로, examType을
+        // 직접 전달받으면 드롭다운도 그 값으로 맞춰준 뒤(updateExamType 재사용)
+        // 모달을 엽니다. 상단 "⭐ 프리미엄 신청" 버튼처럼 인자 없이 호출되면
+        // 기존과 동일하게 현재 선택된 자격증 기준으로 동작합니다.
+        window.showUpgradeModal = async function (examType) {
+            if (examType) {
+                const sel = document.getElementById('sel-exam-type');
+                if (sel && sel.value !== examType) {
+                    sel.value = examType;
+                    updateExamType();
+                }
+            }
+            document.getElementById('upgrade-modal').style.display = 'flex';
+            await renderUpgradeModal();
+        };
+
+        window.closeUpgradeModal = function (e) {
+            if (!e || e.target === document.getElementById('upgrade-modal')) {
+                document.getElementById('upgrade-modal').style.display = 'none';
+            }
+        };
+
+        window.sendUpgradeEmail = async function () {
+            const btn = document.querySelector('.btn-email-apply');
+            if (btn) { btn.disabled = true; btn.textContent = '발송 중...'; }
+
+            const examType   = document.getElementById('sel-exam-type').value;
+            const planMonths = window.getSelectedPlanMonths();
+
+            try {
+                const res  = await fetch('/api/send-mail', {
+                    method : 'POST',
+                    headers: authHeaders(),
+                    body   : JSON.stringify({ examType, planMonths })
+                });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.message);
+
+                document.getElementById('upgrade-modal-body').innerHTML = `
+                    <div class="upgrade-icon">✅</div>
+                    <div class="upgrade-title">신청 완료!</div>
+                    <p class="upgrade-sub">
+                        신청 메일이 발송되었습니다.<br>
+                        입금 확인 후 1 영업일 이내 활성화됩니다.
+                    </p>
+                    <button class="btn-close-text" onclick="closeUpgradeModal()" style="margin-top:10px;">닫기</button>
+                `;
+            } catch (e) {
+                alert('메일 발송 실패: ' + e.message);
+                if (btn) { btn.disabled = false; btn.textContent = '📧 이메일로 프리미엄 신청하기'; }
+            }
+        };
+
+    </script>
+</body>
+</html>

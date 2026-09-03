@@ -1,0 +1,34 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/admin/update-expiry", "destination": "/api/admin/update-expiry.js" },
+    { "source": "/api/admin/:action",   "destination": "/api/admin.js?action=:action" },
+    { "source": "/api/login",           "destination": "/api/auth.js?action=login" },
+    { "source": "/api/signup",          "destination": "/api/auth.js?action=signup" },
+    { "source": "/api/reset-password",  "destination": "/api/auth.js?action=reset-password" },
+    { "source": "/api/set-new-password","destination": "/api/auth.js?action=set-new-password" },
+    { "source": "/api/questions",       "destination": "/api/questions.js" },
+    { "source": "/api/years",           "destination": "/api/years.js" },
+    { "source": "/api/exam-coverage",   "destination": "/api/exam-coverage.js" },
+    { "source": "/api/quiz-log",        "destination": "/api/quiz-log.js" },
+    { "source": "/api/interview/:action", "destination": "/api/interview.js?action=:action" },
+    { "source": "/api/slack-action",    "destination": "/api/slack-action.js" },
+    { "source": "/api/send-mail",       "destination": "/api/send-mail.js" },
+    { "source": "/api/update-expiry",   "destination": "/api/admin/update-expiry.js" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/subscription-check",
+      "schedule": "0 18 * * *"
+    }
+  ]
+}

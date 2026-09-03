@@ -1,0 +1,526 @@
+/* ==========================================================================
+   MindPass 통합 디자인 시스템 (style.css)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap');
+
+:root {
+  /* 브랜드 컬러 시스템 */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-light: #eff6ff;
+  --primary-dark: #1e40af;
+  
+  --secondary: #0f766e;
+  --secondary-hover: #115e59;
+  --secondary-light: #f0fdfa;
+
+  --navy: #1e293b;
+  --navy-light: #334155;
+  --navy-dark: #0f172a;
+
+  /* 중립색 및 배경 */
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+
+  /* 텍스트 계층 */
+  --text-main: #0f172a;
+  --text-sub: #475569;
+  --text-faint: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* 보더 & 구분선 */
+  --border-color: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --border-strong: #cbd5e1;
+
+  /* 피드백 & 시맨틱 상태 */
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --warn: #f59e0b;
+  --warn-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --info: #0ea5e9;
+  --info-bg: #f0f9ff;
+
+  /* 그림자 시스템 */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 4px -1px rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 32px -8px rgba(15, 23, 42, 0.14), 0 8px 16px -6px rgba(15, 23, 42, 0.06);
+
+  /* 곡률 */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* 트랜지션 & 애니메이션 */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 0.15s var(--ease);
+  --transition-normal: 0.25s var(--ease);
+
+  /* 타이포그래피 스케일 */
+  --fs-caption: 0.75rem;    /* 12px */
+  --fs-label: 0.875rem;     /* 14px */
+  --fs-body: 1rem;          /* 16px */
+  --fs-emphasis: 1.125rem;  /* 18px */
+  --fs-title: 1.375rem;     /* 22px */
+  --fs-page-title: 2rem;    /* 32px */
+}
+
+/* 베이스 리셋 */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(15, 118, 110, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* 타이포그래피 기본 */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--navy);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── 상단 유저 상태 바 ── */
+.user-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 28px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-label);
+  font-weight: 500;
+}
+
+.user-name {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.status-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 뱃지 컴포넌트 */
+.badge, .premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: var(--fs-caption);
+  letter-spacing: 0.02em;
+}
+
+.badge-role {
+  background: var(--danger-bg);
+  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+}
+
+/* 버튼 컴포넌트 */
+/* button, .btn 뿐 아니라 .btn-nav-link/.btn-admin-outline/.btn-logout/.btn-random/.btn-upgrade도
+   여기 포함시켜, <button>이 아니라 <a> 태그로 쓰였을 때도(예: interview.html의 상단 메뉴 링크)
+   밑줄이 남거나 둥근 모서리·커서 등이 빠지지 않도록 합니다. */
+button, .btn, .btn-nav-link, .btn-admin-outline, .btn-logout, .btn-random, .btn-upgrade {
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-primary, button.primary {
+  background: var(--primary);
+  color: #ffffff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+.btn-primary:hover, button.primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active, button.primary:active {
+  transform: translateY(0);
+}
+
+.btn-admin-outline, .btn-nav-link, button.secondary, .btn-refresh-stats {
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--navy);
+  padding: 8px 14px;
+}
+.btn-admin-outline:hover, .btn-nav-link:hover, button.secondary:hover, .btn-refresh-stats:hover {
+  background: var(--surface-alt);
+  border-color: var(--text-sub);
+  color: var(--navy-dark);
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-sub);
+  font-size: var(--fs-label);
+}
+.btn-logout:hover {
+  background: #fff;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* 이모지 대신 쓰는 세련된 라인 스타일 SVG 아이콘(상단 메뉴, 탭, 주요 섹션 제목용).
+   stroke=currentColor 라서 버튼/탭의 글자색(hover, active 포함)을 그대로 따라갑니다. */
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  vertical-align: -3px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-random {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.btn-random:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-upgrade {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+.btn-upgrade:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+/* ── 카드 스타일 ── */
+.card, .admin-panel-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  transition: box-shadow var(--transition-normal);
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── 필터 바 ── */
+.filter-bar {
+  background: var(--surface);
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex: 1 1 auto;
+}
+
+select, input[type="text"], input[type="date"], input[type="datetime-local"], input[type="number"], input[type="email"], textarea {
+  font-family: inherit;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  background-color: #ffffff;
+  font-size: var(--fs-label);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+select:focus, input:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ── 퀴즈 보기 버튼 UI ── */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 16px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-main);
+  font-weight: 400;
+}
+.choice-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.choice-num {
+  width: 28px;
+  height: 28px;
+  background: var(--surface-alt);
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 14px;
+  font-weight: 700;
+  font-size: var(--fs-label);
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.choice-text {
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: 1.5;
+  padding-top: 2px;
+  text-align: left;
+}
+
+/* ── 테이블 공통 UI ── */
+.user-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-label);
+}
+
+.user-table th {
+  background-color: var(--surface-alt);
+  color: var(--text-sub);
+  font-weight: 700;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.user-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.user-table tr:hover td {
+  background-color: #fafbfc;
+}
+
+/* ── 모달 오버레이 & 팝업 ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: var(--surface);
+  padding: 36px 32px;
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  border: 1px solid var(--border-color);
+  position: relative;
+  animation: modalSlideUp 0.25s var(--ease);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 혜택 안내 박스 */
+.tier-benefit-block {
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+.tier-benefit-free {
+  background: var(--surface-alt);
+  border: 1px solid var(--border-color);
+}
+.tier-benefit-premium {
+  background: var(--success-bg);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 안내 배너 — index/premium/interview가
+   공유합니다. 관리자가 [설정]에 등록한 개설 일정 중 아직 시작하지 않았거나 오늘
+   시작하는 회차가 하나라도 있을 때만 표시됩니다(각 페이지의 JS가 조건을 계산). */
+.coaching-promo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  padding: 16px 22px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #ffffff;
+  box-shadow: var(--shadow-md);
+}
+
+.coaching-promo-banner .coaching-promo-text {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.coaching-promo-banner .coaching-promo-text b {
+  font-weight: 800;
+}
+
+.coaching-promo-banner .coaching-promo-btn {
+  flex-shrink: 0;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: var(--fs-body);
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.coaching-promo-banner .coaching-promo-btn:hover {
+  background: var(--surface-alt);
+}
+
+@media (max-width: 560px) {
+  .coaching-promo-banner { flex-direction: column; align-items: flex-start; }
+  .coaching-promo-banner .coaching-promo-btn { width: 100%; text-align: center; }
+}
+
+/* 사이트 전체 공통 footer (index/admin/premium/interview 모두 동일하게 사용) */
+.site-footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-faint);
+  font-size: var(--fs-caption);
+  border-top: 1px solid var(--border-soft);
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .container { padding: 16px 14px 60px; }
+  .card { padding: 20px 16px; }
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group { flex-direction: column; }
+  .filter-group select { width: 100%; }
+}
