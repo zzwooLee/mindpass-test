@@ -929,7 +929,10 @@ async function loadFeatureFlags(){
   // 꺼두지 않았다면, 최상단에도 신청 유도 배너를 보여줍니다.
   const coachingPromoBannerEl = document.getElementById('coachingPromoBanner');
   if (coachingPromoBannerEl) {
-    coachingPromoBannerEl.innerHTML = (featureFlags.coaching !== false && isCoachingCourseUpcoming(featureFlags.coachingCourseSchedule))
+    // [COACHING-PROMO-BANNER-HIDE-PREMIUM] 이미 코칭 면접 코스(또는 그에 준하는) Premium
+    // 권한을 가진 회원에게는 신청 유도 배너가 의미 없으므로 숨깁니다.
+    const alreadyPremium = getInterviewAccessStatus() === 'premium';
+    coachingPromoBannerEl.innerHTML = (featureFlags.coachingPromoBannerEnabled !== false && !alreadyPremium && featureFlags.coaching !== false && isCoachingCourseUpcoming(featureFlags.coachingCourseSchedule))
       ? renderCoachingPromoBannerHTML({ text: featureFlags.coachingPromoBannerText, onclick: "showUpgradeModal('coaching')" })
       : '';
   }

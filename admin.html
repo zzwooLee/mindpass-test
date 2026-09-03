@@ -674,9 +674,13 @@
             <div class="admin-panel-card" style="border:1px solid #e2e8f0; max-width:760px; margin-top:24px;">
                 <h4 style="color:#4a5568; margin-bottom:6px;">📢 코칭 프로그램 개설 안내 배너 문구</h4>
                 <p style="font-size:var(--fs-label); color:#a0aec0; margin-bottom:16px;">
-                    코칭 면접 코스 개설 일정 중 아직 시작하지 않았거나 오늘 시작하는 회차가 있을 때, 홈/자격증 퀴즈 뱅크/전문상담사 AI 모의면접 화면 상단에 표시되는 안내 문구입니다.
+                    코칭 면접 코스 개설 일정 중 아직 시작하지 않았거나 오늘 시작하는 회차가 있을 때, 홈/자격증 퀴즈 뱅크/전문상담사 AI 모의면접 화면 상단에 표시되는 안내 문구입니다. 아래에서 배너 자체를 켜고 끌 수 있습니다(꺼두면 개설 일정과 무관하게 항상 숨겨집니다).
                 </p>
-                <textarea id="settings-coaching-banner-text-input" rows="3" maxlength="300" placeholder="예: 🎉 현재 전문상담사 자격 면접 대비 코칭 프로그램이 개설되었습니다. 본 프로그램 참여를 원하시는 분은 코칭면접코스를 신청해주세요." style="width:100%; padding:9px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-family:inherit; resize:vertical;"></textarea>
+                <label style="display:flex; align-items:center; gap:6px; font-size:var(--fs-label); color:#4a5568; cursor:pointer; margin-bottom:12px;">
+                    <input type="checkbox" id="coaching-banner-enabled-checkbox" checked>
+                    배너 표시 (on/off)
+                </label>
+                <textarea id="settings-coaching-banner-text-input" rows="3" maxlength="300" placeholder="예: 🎉 [한국상담학회] 전문상담사 자격 면접 대비 코칭 프로그램이 지금 개설되어 있습니다. 코칭면접코스를 신청해주세요." style="width:100%; padding:9px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-family:inherit; resize:vertical;"></textarea>
                 <div style="margin-top:10px; text-align:right;">
                     <button class="btn-refresh-stats" onclick="saveCoachingPromoBannerText()">💾 저장</button>
                 </div>
@@ -1004,6 +1008,9 @@
                 // [DOWNLOAD-BTN-TOGGLE]
                 const downloadBtnCb = document.getElementById('downloadResultBtnCheckbox');
                 if (downloadBtnCb) downloadBtnCb.checked = featureFlagsCache.showDownloadResultBtn !== false;
+                // [COACHING-PROMO-BANNER] 배너 on/off는 interview_feature_flags에 저장됩니다.
+                const coachingBannerEnabledCb = document.getElementById('coaching-banner-enabled-checkbox');
+                if (coachingBannerEnabledCb) coachingBannerEnabledCb.checked = featureFlagsCache.coachingPromoBannerEnabled !== false;
             } catch (e) {
                 if (body) body.innerHTML = `<span style="color:#e53e3e; font-size:var(--fs-label);">${escapeHtml(e.message)}</span>`;
             }
@@ -3984,6 +3991,7 @@
         window.saveCoachingPromoBannerText = async function(){
             const input = document.getElementById('settings-coaching-banner-text-input');
             const statusEl = document.getElementById('settings-coaching-banner-text-status');
+            const enabledCb = document.getElementById('coaching-banner-enabled-checkbox');
             const coachingPromoBannerText = input.value.trim();
             if (!coachingPromoBannerText) {
                 statusEl.style.color = '#e53e3e';
@@ -3996,6 +4004,15 @@
                 const res = await fetch('/api/admin/update-settings', { method:'POST', headers: authHeaders(), body: JSON.stringify({ coachingPromoBannerText }) });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || '저장 실패');
+                // [COACHING-PROMO-BANNER] on/off는 별도 저장소(interview_feature_flags)라
+                // 같은 저장 버튼에서 두 번째 요청으로 함께 저장합니다.
+                const enabled = enabledCb ? enabledCb.checked : true;
+                const flagRes = await fetch('/api/interview/admin-feature-flags-update', {
+                    method: 'POST', headers: authHeaders(), body: JSON.stringify({ flags: { coachingPromoBannerEnabled: enabled } })
+                });
+                const flagData = await flagRes.json();
+                if (!flagRes.ok) throw new Error(flagData.message || '배너 on/off 저장 실패');
+                Object.assign(featureFlagsCache, { coachingPromoBannerEnabled: enabled });
                 statusEl.style.color = '#38a169';
                 statusEl.textContent = '저장되었습니다.';
             } catch (e) {

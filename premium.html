@@ -444,14 +444,26 @@
         async function loadCoachingPromoBanner(){
             const el = document.getElementById('coachingPromoBanner');
             if (!el) return;
+            // [COACHING-PROMO-BANNER-HIDE-PREMIUM] 이미 코칭 면접 코스(또는 그에 준하는)
+            // Premium 권한을 가진 회원에게는 신청 유도 배너가 의미 없으므로 숨깁니다.
+            if (typeof getCurrentExamStatus === 'function' && getCurrentExamStatus('counselor_interview') === 'premium') {
+                return;
+            }
             try {
                 const res = await fetch('/api/interview/public-service-status', {
                     method: 'POST', headers: authHeaders(), body: JSON.stringify({})
                 });
                 if (!res.ok) return;
                 const s = await res.json();
-                if (s.coachingOpen && isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
-                    el.innerHTML = renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, href: 'interview.html?tab=coaching&apply=1' });
+                if (s.coachingPromoBannerEnabled !== false && s.coachingOpen && isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
+                    // [COACHING-PROMO-BANNER-INFO-BTN] 자격증 퀴즈 뱅크에서는 "신청하기" 앞에
+                    // "안내보기"를 추가로 넣어, 신청 전에 코칭 면접 코스 탭(요금·일정)을 먼저
+                    // 볼 수 있게 합니다(apply=1을 빼서 신청 모달은 열지 않고 탭만 전환).
+                    el.innerHTML = renderCoachingPromoBannerHTML({
+                        text: s.coachingPromoBannerText,
+                        infoHref: 'interview.html?tab=coaching',
+                        href: 'interview.html?tab=coaching&apply=1'
+                    });
                 }
             } catch (e) {
                 console.error('[premium] 코칭 면접 코스 배너 조회 실패:', e.message);

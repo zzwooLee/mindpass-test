@@ -115,6 +115,8 @@ export async function featureFlags(req, res, requester) {
         practice: true, schedule: true, coaching: true, history: true, guide: true,
         // [DOWNLOAD-BTN-TOGGLE] 모의면접 완료 화면의 "결과 텍스트로 저장" 버튼 노출 여부.
         showDownloadResultBtn: true,
+        // [COACHING-PROMO-BANNER] 홈/퀴즈뱅크/모의면접 상단 코칭 프로그램 안내 배너 on/off.
+        coachingPromoBannerEnabled: true,
         // [ANSWER-MODE] 카테고리별 구조형/통합형 답안 모드 전체 기본값 — AI 자율연습용과
         // AI 면접 코스용을 따로 설정할 수 있습니다(문제별/배정별로 다시 재정의 가능).
         modeCasePracticeStructured: true, modeCasePracticeFreeform: true,
@@ -294,6 +296,8 @@ export async function adminFeatureFlagsUpdate(req, res, requester) {
         'practice', 'schedule', 'coaching', 'history', 'guide',
         // [DOWNLOAD-BTN-TOGGLE] 모의면접 완료 화면의 "결과 텍스트로 저장" 버튼 노출 여부.
         'showDownloadResultBtn',
+        // [COACHING-PROMO-BANNER] 홈/퀴즈뱅크/모의면접 상단 코칭 프로그램 안내 배너 on/off.
+        'coachingPromoBannerEnabled',
         'modeCasePracticeStructured', 'modeCasePracticeFreeform',
         'modeEthicsPracticeStructured', 'modeEthicsPracticeFreeform',
         'modeCaseTeamStructured', 'modeCaseTeamFreeform',
@@ -365,10 +369,10 @@ export async function publicServiceStatus(req, res) {
   const { data, error } = await supabase
     .from('interview_feature_flags')
     .select('key, enabled')
-    .in('key', ['practice', 'schedule', 'coaching']);
+    .in('key', ['practice', 'schedule', 'coaching', 'coachingPromoBannerEnabled']);
   if (error) throw error;
 
-  const flags = { practice: true, schedule: true, coaching: true };
+  const flags = { practice: true, schedule: true, coaching: true, coachingPromoBannerEnabled: true };
   (data || []).forEach(r => {
     if (r.key in flags) flags[r.key] = !!r.enabled;
   });
@@ -380,6 +384,7 @@ export async function publicServiceStatus(req, res) {
     practiceOpen: flags.practice,
     scheduleOpen: flags.schedule,
     coachingOpen: flags.coaching,
+    coachingPromoBannerEnabled: flags.coachingPromoBannerEnabled,
     coachingCourseSchedule,
     coachingPromoBannerText
   });

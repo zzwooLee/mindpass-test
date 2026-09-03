@@ -483,6 +483,13 @@ select:focus, input:focus, textarea:focus {
   font-weight: 800;
 }
 
+.coaching-promo-banner .coaching-promo-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .coaching-promo-banner .coaching-promo-btn {
   flex-shrink: 0;
   padding: 10px 22px;
@@ -502,9 +509,22 @@ select:focus, input:focus, textarea:focus {
   background: var(--surface-alt);
 }
 
+/* [COACHING-PROMO-BANNER] 자격증 퀴즈 뱅크의 "안내보기" 버튼 — 신청하기(채워진 흰색
+   버튼)보다 낮은 우선순위이므로 테두리만 있는 형태로 구분합니다. */
+.coaching-promo-banner .coaching-promo-btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+}
+
+.coaching-promo-banner .coaching-promo-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 @media (max-width: 560px) {
   .coaching-promo-banner { flex-direction: column; align-items: flex-start; }
-  .coaching-promo-banner .coaching-promo-btn { width: 100%; text-align: center; }
+  .coaching-promo-banner .coaching-promo-actions { width: 100%; }
+  .coaching-promo-banner .coaching-promo-btn { flex: 1; text-align: center; }
 }
 
 /* 사이트 전체 공통 footer (index/admin/premium/interview 모두 동일하게 사용) */

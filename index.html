@@ -645,11 +645,17 @@
             const el = document.getElementById('coachingPromoBanner');
             if (!el) return;
             const s = publicServiceStatus;
-            if (!s || !s.coachingOpen || !isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
+            if (!s || s.coachingPromoBannerEnabled === false || !s.coachingOpen || !isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
                 el.innerHTML = '';
                 return;
             }
             const loggedIn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.email);
+            // [COACHING-PROMO-BANNER-HIDE-PREMIUM] 이미 코칭 면접 코스(또는 그에 준하는)
+            // Premium 권한을 가진 회원에게는 신청 유도 배너가 의미 없으므로 숨깁니다.
+            if (loggedIn && typeof getCurrentExamStatus === 'function' && getCurrentExamStatus('counselor_interview') === 'premium') {
+                el.innerHTML = '';
+                return;
+            }
             el.innerHTML = loggedIn
                 ? renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, href: 'interview.html?tab=coaching&apply=1' })
                 : renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, onclick: "openLoginModal('login', 'interview.html?tab=coaching&apply=1')" });

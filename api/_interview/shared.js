@@ -143,7 +143,7 @@ export async function getBankAccountInfo() {
 // 저장합니다. 관리자가 아직 수정한 적이 없으면 기본 문구를 그대로 반환합니다.
 // ─────────────────────────────────────────────────────────────────
 export const COACHING_PROMO_BANNER_TEXT_DEFAULT =
-  '🎉 현재 전문상담사 자격 면접 대비 코칭 프로그램이 개설되었습니다. 본 프로그램 참여를 원하시는 분은 코칭면접코스를 신청해주세요.';
+  '🎉 [한국상담학회] 전문상담사 자격 면접 대비 코칭 프로그램이 지금 개설되어 있습니다. 코칭면접코스를 신청해주세요.';
 
 export async function getCoachingPromoBannerText() {
   try {

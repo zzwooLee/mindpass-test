@@ -347,21 +347,25 @@ function isCoachingCourseUpcoming(schedule) {
 // [COACHING-PROMO-BANNER] 관리자 [설정]에서 문구를 수정할 수 있어, 기본값은 폴백
 // 용도로만 남겨둡니다(호출부는 서버가 내려준 coachingPromoBannerText를 넘겨줍니다).
 const COACHING_PROMO_BANNER_TEXT_FALLBACK =
-    '🎉 현재 전문상담사 자격 면접 대비 코칭 프로그램이 개설되었습니다. 본 프로그램 참여를 원하시는 분은 코칭면접코스를 신청해주세요.';
+    '🎉 [한국상담학회] 전문상담사 자격 면접 대비 코칭 프로그램이 지금 개설되어 있습니다. 코칭면접코스를 신청해주세요.';
 
 // [COACHING-COURSE-BANNER] 배너 마크업 — opts.text(관리자가 설정한 문구, 없으면 기본
-// 문구)와 opts.href(다른 페이지로 이동) / opts.onclick(현재 페이지에서 바로 신청
-// 모달 열기) 중 하나를 받습니다.
+// 문구), opts.href(다른 페이지로 이동) / opts.onclick(현재 페이지에서 바로 신청 모달
+// 열기) 중 하나, 그리고 선택적으로 opts.infoHref(신청하기 앞에 "안내보기" 버튼을 추가로
+// 넣어 그 링크로 이동)를 받습니다.
 function renderCoachingPromoBannerHTML(opts) {
     opts = opts || {};
     const text = (typeof opts.text === 'string' && opts.text.trim()) ? opts.text : COACHING_PROMO_BANNER_TEXT_FALLBACK;
-    const action = opts.href
+    const infoBtn = opts.infoHref
+        ? `<a href="${opts.infoHref}" class="coaching-promo-btn coaching-promo-btn-secondary">안내보기</a>`
+        : '';
+    const applyBtn = opts.href
         ? `<a href="${opts.href}" class="coaching-promo-btn">신청하기</a>`
         : `<button type="button" class="coaching-promo-btn" onclick="${opts.onclick || ''}">신청하기</button>`;
     return `
     <div class="coaching-promo-banner">
         <div class="coaching-promo-text">${escapeHtml(text)}</div>
-        ${action}
+        <div class="coaching-promo-actions">${infoBtn}${applyBtn}</div>
     </div>`;
 }
 
