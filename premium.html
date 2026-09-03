@@ -451,7 +451,7 @@
                 if (!res.ok) return;
                 const s = await res.json();
                 if (s.coachingOpen && isCoachingCourseUpcoming(s.coachingCourseSchedule)) {
-                    el.innerHTML = renderCoachingPromoBannerHTML({ href: 'interview.html?tab=coaching&apply=1' });
+                    el.innerHTML = renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, href: 'interview.html?tab=coaching&apply=1' });
                 }
             } catch (e) {
                 console.error('[premium] 코칭 면접 코스 배너 조회 실패:', e.message);

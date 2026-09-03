@@ -138,6 +138,29 @@ export async function getBankAccountInfo() {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// [COACHING-PROMO-BANNER] index.html/premium.html/interview.html 상단에 공통으로
+// 보여주는 코칭 프로그램 개설 안내 배너 문구 — app_settings에 일반 텍스트로
+// 저장합니다. 관리자가 아직 수정한 적이 없으면 기본 문구를 그대로 반환합니다.
+// ─────────────────────────────────────────────────────────────────
+export const COACHING_PROMO_BANNER_TEXT_DEFAULT =
+  '🎉 현재 전문상담사 자격 면접 대비 코칭 프로그램이 개설되었습니다. 본 프로그램 참여를 원하시는 분은 코칭면접코스를 신청해주세요.';
+
+export async function getCoachingPromoBannerText() {
+  try {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'coaching_promo_banner_text')
+      .maybeSingle();
+    if (error) throw error;
+    return data?.value || COACHING_PROMO_BANNER_TEXT_DEFAULT;
+  } catch (e) {
+    console.warn('[interview.js] app_settings(코칭 배너 문구) 조회 실패 — 기본값으로 폴백:', e.message);
+    return COACHING_PROMO_BANNER_TEXT_DEFAULT;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
 // [COACHING-COURSE-SCHEDULE] 코칭 면접 코스 "안내" 화면에 보여줄 개설 일정 목록 —
 // app_settings에 JSON 배열 문자열로 저장합니다(급수별로 여러 개, 중복 기간도 허용).
 // 관리자가 아직 입력하지 않았으면 빈 배열을 반환합니다.

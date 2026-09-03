@@ -930,7 +930,7 @@ async function loadFeatureFlags(){
   const coachingPromoBannerEl = document.getElementById('coachingPromoBanner');
   if (coachingPromoBannerEl) {
     coachingPromoBannerEl.innerHTML = (featureFlags.coaching !== false && isCoachingCourseUpcoming(featureFlags.coachingCourseSchedule))
-      ? renderCoachingPromoBannerHTML({ onclick: "showUpgradeModal('coaching')" })
+      ? renderCoachingPromoBannerHTML({ text: featureFlags.coachingPromoBannerText, onclick: "showUpgradeModal('coaching')" })
       : '';
   }
 }

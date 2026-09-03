@@ -3,6 +3,7 @@ import {
   getContactEmail,
   getBankAccountInfo,
   getCoachingCourseSchedule,
+  getCoachingPromoBannerText,
   GEMINI_API_KEY,
   GEMINI_MODEL,
   VALID_QUESTION_CATS,
@@ -151,6 +152,7 @@ export async function featureFlags(req, res, requester) {
       // interview_feature_flags가 아니라 app_settings(관리자 [설정] 메뉴)에서 관리합니다.
       flags.bankAccount = await getBankAccountInfo();
       flags.coachingCourseSchedule = await getCoachingCourseSchedule();
+      flags.coachingPromoBannerText = await getCoachingPromoBannerText();
       return res.status(200).json(flags);
 }
 
@@ -372,12 +374,14 @@ export async function publicServiceStatus(req, res) {
   });
 
   const coachingCourseSchedule = await getCoachingCourseSchedule();
+  const coachingPromoBannerText = await getCoachingPromoBannerText();
 
   return res.status(200).json({
     practiceOpen: flags.practice,
     scheduleOpen: flags.schedule,
     coachingOpen: flags.coaching,
-    coachingCourseSchedule
+    coachingCourseSchedule,
+    coachingPromoBannerText
   });
 }
 

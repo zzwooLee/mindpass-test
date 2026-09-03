@@ -34,7 +34,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'node:crypto';
-import { archiveFreeTrialPracticeSessions, removeUserFromLiveTeamOnCoachingDowngrade } from './_interview/shared.js';
+import { archiveFreeTrialPracticeSessions, removeUserFromLiveTeamOnCoachingDowngrade, COACHING_PROMO_BANNER_TEXT_DEFAULT } from './_interview/shared.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: 'Forbidden: 관리자 권한이 필요합니다.' });
   }
 
-  const { targetUserId, examType, newStatus, expiryDate, isAdmin, questionId, is_verified, contactEmail, bankName, bankAccountNumber, bankAccountHolder, coachingCourseSchedule } = req.body;
+  const { targetUserId, examType, newStatus, expiryDate, isAdmin, questionId, is_verified, contactEmail, bankName, bankAccountNumber, bankAccountHolder, coachingCourseSchedule, coachingPromoBannerText } = req.body;
 
   try {
     switch (action) {
@@ -359,10 +359,11 @@ export default async function handler(req, res) {
         // [BANK-ACCOUNT-INFO] 문의 이메일과 함께 코칭 면접 코스 입금 안내용
         // 은행계좌 정보(은행명/계좌번호/예금주)도 같이 조회합니다.
         // [COACHING-COURSE-SCHEDULE] 코칭 면접 코스 개설 일정(급수별, 중복 가능)도 함께 조회합니다.
+        // [COACHING-PROMO-BANNER] 홈/퀴즈뱅크/모의면접 상단 배너 문구도 같이 조회합니다.
         const { data, error } = await supabase
           .from('app_settings')
           .select('key, value')
-          .in('key', ['contact_email', 'bank_name', 'bank_account_number', 'bank_account_holder', 'coaching_course_schedule']);
+          .in('key', ['contact_email', 'bank_name', 'bank_account_number', 'bank_account_holder', 'coaching_course_schedule', 'coaching_promo_banner_text']);
         if (error) throw error;
 
         const settingsMap = {};
@@ -383,7 +384,8 @@ export default async function handler(req, res) {
           bankName: settingsMap.bank_name || '',
           bankAccountNumber: settingsMap.bank_account_number || '',
           bankAccountHolder: settingsMap.bank_account_holder || '',
-          coachingCourseSchedule: coachingCourseScheduleOut
+          coachingCourseSchedule: coachingCourseScheduleOut,
+          coachingPromoBannerText: settingsMap.coaching_promo_banner_text || COACHING_PROMO_BANNER_TEXT_DEFAULT
         });
       }
 
@@ -447,6 +449,18 @@ export default async function handler(req, res) {
             updated_at: new Date().toISOString(),
             updated_by: requester.id
           });
+        }
+
+        // [COACHING-PROMO-BANNER] 홈/퀴즈뱅크/모의면접 상단 배너 문구 저장.
+        if (coachingPromoBannerText !== undefined) {
+          const trimmed = typeof coachingPromoBannerText === 'string' ? coachingPromoBannerText.trim() : '';
+          if (!trimmed) {
+            return res.status(400).json({ message: '배너 문구를 입력해주세요.' });
+          }
+          if (trimmed.length > 300) {
+            return res.status(400).json({ message: '배너 문구는 300자 이내로 입력해주세요.' });
+          }
+          settingsRows.push({ key: 'coaching_promo_banner_text', value: trimmed, updated_at: new Date().toISOString(), updated_by: requester.id });
         }
 
         if (settingsRows.length === 0) {

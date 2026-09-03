@@ -651,8 +651,8 @@
             }
             const loggedIn = !!(typeof currentUser !== 'undefined' && currentUser && currentUser.email);
             el.innerHTML = loggedIn
-                ? renderCoachingPromoBannerHTML({ href: 'interview.html?tab=coaching&apply=1' })
-                : renderCoachingPromoBannerHTML({ onclick: "openLoginModal('login', 'interview.html?tab=coaching&apply=1')" });
+                ? renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, href: 'interview.html?tab=coaching&apply=1' })
+                : renderCoachingPromoBannerHTML({ text: s.coachingPromoBannerText, onclick: "openLoginModal('login', 'interview.html?tab=coaching&apply=1')" });
         }
 
         function renderInterviewDetailHTML(){
