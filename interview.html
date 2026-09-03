@@ -26,7 +26,7 @@
   /* [ADMIN-TAB-STYLE-MATCH] 탭 메뉴는 index.html의 로그인 탭과 동일한 .auth-tabs/.auth-tab을
      재사용합니다(둘 다 style.css를 불러오지만, 이 컴포넌트 자체는 각 페이지에 지역 정의되어
      있어 여기서도 동일하게 추가합니다). */
-  .auth-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--border-soft);max-width:920px;margin:20px auto 0;padding:0 16px;}
+  .auth-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--border-soft);max-width:1040px;margin:20px auto 0;padding:0 16px;}
   .auth-tab{padding:12px 16px;border:none;background:none;font-size:var(--fs-body);font-weight:500;cursor:pointer;color:var(--text-faint);border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s, border-color .15s;}
   .auth-tab:hover{color:var(--primary);}
   .auth-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700;}
@@ -35,14 +35,15 @@
   nav button .nav-tab-off-badge{display:none;margin-left:6px;font-size:0.72em;font-weight:700;color:#e53e3e;background:#fff5f5;border:1px solid #feb2b2;border-radius:6px;padding:1px 6px;vertical-align:middle;}
   nav button.nav-tab-off{color:#a0aec0;}
   nav button.nav-tab-off .nav-tab-off-badge{display:inline-block;}
-  main{max-width:920px;margin:0 auto;padding:20px 16px 60px;}
-  /* [STATUSBAR-WIDTH-MATCH] 이 페이지는 style.css의 .container(1040px)를 쓰지 않고
-     header/nav/main을 각자 max-width:920px로 중앙 정렬합니다. .user-status-bar는
+  main{max-width:1040px;margin:0 auto;padding:20px 16px 60px;}
+  /* [STATUSBAR-WIDTH-MATCH] 이 페이지는 style.css의 .container 클래스를 쓰지 않고
+     header/nav/main을 각자 max-width로 중앙 정렬합니다. .user-status-bar는
      style.css의 공용 규칙(다른 페이지에서는 .container 안에 있어 폭이 맞음)이라 여기서는
-     그 폭 지정이 없어 화면 전체로 벌어져 보였습니다 — 여기서만 같은 920px로 맞춥니다.
+     그 폭 지정이 없어 화면 전체로 벌어져 보였습니다 — 다른 모든 화면(index/premium/admin)이
+     쓰는 .container와 동일한 1040px로 여기서도 맞춥니다.
      (style.css의 .user-status-bar 자체는 admin/premium/index에서 쓰는 그대로 두고,
      이 페이지 지역 스타일로만 덮어씁니다.) */
-  .user-status-bar{max-width:920px;margin:32px auto 28px;padding:12px 16px;}
+  .user-status-bar{max-width:1040px;margin:32px auto 28px;padding:12px 16px;}
   .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;}
   .row{display:flex;gap:12px;flex-wrap:wrap;}
   .pill{display:inline-block;padding:4px 10px;border-radius:20px;background:#eaf1fb;color:var(--accent);font-size:var(--fs-caption);font-weight:bold;}
@@ -166,13 +167,13 @@
   </div>
 </div>
 
-<header style="text-align:center; max-width:920px; margin:28px auto 20px; padding:0 16px;">
+<header style="text-align:center; max-width:1040px; margin:28px auto 20px; padding:0 16px;">
   <h1 style="font-size:var(--fs-page-title); font-weight:800; color:var(--navy-dark);">전문상담사 AI 모의면접</h1>
   <p style="color:var(--text-sub); margin-top:6px;">한국상담학회 전문상담사(1급·2급) 면접 대비 · <b>사례개념화</b>·<b>상담윤리</b>·<b>수퍼비전</b>(1급)까지, AI 피드백으로 실전처럼 준비하는 연습 도구</p>
 </header>
 
 <!-- [COACHING-COURSE-BANNER] 코칭 면접 코스 개설 안내 배너 — 개설된 회차가 있을 때만 표시됩니다. -->
-<div id="coachingPromoBanner" style="max-width:920px; margin:0 auto 20px; padding:0 16px;"></div>
+<div id="coachingPromoBanner" style="max-width:1040px; margin:0 auto 20px; padding:0 16px;"></div>
 
 <nav id="nav" class="auth-tabs">
   <button data-tab="practice" id="navPracticeBtn" class="auth-tab active"><span class="nav-tab-label"><svg class="nav-icon" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 3h6"/><circle cx="9" cy="14" r="1.5"/><circle cx="15" cy="14" r="1.5"/><path d="M9 18h6"/></svg> AI 자율연습</span><span class="nav-tab-off-badge">꺼짐</span></button>
